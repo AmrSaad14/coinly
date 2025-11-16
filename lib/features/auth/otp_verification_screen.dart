@@ -1,9 +1,9 @@
 import 'dart:async';
+import 'package:coinly/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pinput/pinput.dart';
-import '../../../core/router/app_router.dart';
-import '../../../core/theme/app_theme.dart';
+import '../../core/router/app_router.dart';
 
 class OtpVerificationScreen extends StatefulWidget {
   final String phoneNumber;
@@ -55,7 +55,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('تم إرسال الرمز مرة أخرى'),
-          backgroundColor: AppTheme.primaryTeal,
+          backgroundColor: AppColors.primaryTeal,
         ),
       );
     }
@@ -104,13 +104,13 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
 
     final focusedPinTheme = defaultPinTheme.copyWith(
       decoration: defaultPinTheme.decoration!.copyWith(
-        border: Border.all(color: AppTheme.primaryTeal, width: 2),
+        border: Border.all(color: AppColors.primaryTeal, width: 2),
       ),
     );
 
     final submittedPinTheme = defaultPinTheme.copyWith(
       decoration: defaultPinTheme.decoration!.copyWith(
-        border: Border.all(color: AppTheme.primaryTeal),
+        border: Border.all(color: AppColors.primaryTeal),
       ),
     );
 
@@ -186,7 +186,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                         cursor: Container(
                           width: 2,
                           height: 24,
-                          color: AppTheme.primaryTeal,
+                          color: AppColors.primaryTeal,
                         ),
                       ),
                     ),
@@ -225,7 +225,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                               fontSize: 14,
                               color: _resendTimer > 0
                                   ? Colors.grey[600]
-                                  : AppTheme.primaryTeal,
+                                  : AppColors.primaryTeal,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -241,13 +241,13 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                     child: ElevatedButton(
                       onPressed: _isLoading ? null : _verifyOTP,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.primaryTeal,
+                        backgroundColor: AppColors.primaryTeal,
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
                         elevation: 0,
-                        disabledBackgroundColor: AppTheme.primaryTeal
+                        disabledBackgroundColor: AppColors.primaryTeal
                             .withOpacity(0.6),
                       ),
                       child: _isLoading

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
-import '../../presentation/screens/home_screen.dart';
-import '../../presentation/screens/onboarding_screen.dart';
-import '../../presentation/screens/auth/phone_auth_screen.dart';
-import '../../presentation/screens/auth/otp_verification_screen.dart';
-import '../../presentation/screens/auth/complete_registration_screen.dart';
+import '../layout/main_layout.dart';
+import '../../features/onboarding/ui/screens/onboarding_screen.dart';
+import '../../features/auth/phone_auth_screen.dart';
+import '../../features/auth/otp_verification_screen.dart';
+import '../../features/auth/complete_registration_screen.dart';
+import '../../features/kiosk/create_kiosk_screen.dart';
+import '../../features/store/create_store_screen.dart';
 
 class AppRouter {
   // Route names
@@ -11,6 +13,8 @@ class AppRouter {
   static const String phoneAuth = '/phone-auth';
   static const String otpVerification = '/otp-verification';
   static const String completeRegistration = '/complete-registration';
+  static const String createKiosk = '/create-kiosk';
+  static const String createStore = '/create-store';
   static const String home = '/home';
   
   // Route generator
@@ -46,9 +50,21 @@ class AppRouter {
           settings: settings,
         );
       
+      case createKiosk:
+        return MaterialPageRoute(
+          builder: (_) => const CreatekioskScreen(),
+          settings: settings,
+        );
+      
+      case createStore:
+        return MaterialPageRoute(
+          builder: (_) => const CreateStoreScreen(),
+          settings: settings,
+        );
+      
       case home:
         return MaterialPageRoute(
-          builder: (_) => const HomeScreen(),
+          builder: (_) => const MainLayout(),
           settings: settings,
         );
       

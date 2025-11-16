@@ -1,6 +1,6 @@
+import 'package:coinly/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
-import '../../../core/router/app_router.dart';
-import '../../../core/theme/app_theme.dart';
+import '../../core/router/app_router.dart';
 
 class CompleteRegistrationScreen extends StatefulWidget {
   final String phoneNumber;
@@ -59,8 +59,8 @@ class _CompleteRegistrationScreenState
           _isLoading = false;
         });
 
-        // Navigate to home screen
-        AppRouter.pushNamedAndRemoveUntil(context, AppRouter.home);
+        // Navigate to create store screen
+        AppRouter.pushNamedAndRemoveUntil(context, AppRouter.createStore);
       }
     }
   }
@@ -211,7 +211,7 @@ class _CompleteRegistrationScreenState
                             _agreeToTerms = value ?? false;
                           });
                         },
-                        activeColor: AppTheme.primaryTeal,
+                        activeColor: AppColors.primaryTeal,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(4),
                         ),
@@ -243,7 +243,7 @@ class _CompleteRegistrationScreenState
                     child: ElevatedButton(
                       onPressed: _isLoading ? null : _completeRegistration,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.primaryTeal,
+                        backgroundColor: AppColors.primaryTeal,
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -322,7 +322,7 @@ class _CompleteRegistrationScreenState
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppTheme.primaryTeal, width: 2),
+          borderSide: const BorderSide(color: AppColors.primaryTeal, width: 2),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -334,26 +334,6 @@ class _CompleteRegistrationScreenState
         ),
         filled: true,
         fillColor: Colors.grey[50],
-      ),
-    );
-  }
-
-  Widget _buildSocialButton({
-    required IconData icon,
-    required String label,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 64,
-        height: 64,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          border: Border.all(color: Colors.grey[300]!),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Icon(icon, size: 32, color: Colors.grey[700]),
       ),
     );
   }

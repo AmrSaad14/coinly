@@ -1,8 +1,8 @@
 import 'dart:math' as math;
+import 'package:coinly/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import '../../core/router/app_router.dart';
-import '../../core/theme/app_theme.dart';
+import '../../../../core/router/app_router.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -117,7 +117,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       child: const Text(
                         'تخطي',
                         style: TextStyle(
-                          color: AppTheme.primaryTeal,
+                          color: AppColors.primaryTeal,
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
                         ),
@@ -209,8 +209,8 @@ class _PageIndicator extends StatelessWidget {
       width: isActive ? 24 : 8,
       decoration: BoxDecoration(
         color: isActive
-            ? AppTheme.primaryTeal
-            : AppTheme.primaryTeal.withOpacity(0.3),
+            ? AppColors.primaryTeal
+            : AppColors.primaryTeal.withOpacity(0.3),
         borderRadius: BorderRadius.circular(4),
       ),
     );
@@ -237,7 +237,7 @@ class _CircularProgressButton extends StatelessWidget {
             child: CustomPaint(
               painter: _CircularProgressPainter(
                 progress: progress,
-                color: AppTheme.primaryTeal,
+                color: AppColors.primaryTeal,
               ),
             ),
           ),
@@ -246,7 +246,7 @@ class _CircularProgressButton extends StatelessWidget {
             width: 50,
             height: 50,
             decoration: const BoxDecoration(
-              color: AppTheme.primaryTeal,
+              color: AppColors.primaryTeal,
               shape: BoxShape.circle,
             ),
             child: const Icon(

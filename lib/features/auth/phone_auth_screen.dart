@@ -1,7 +1,7 @@
+import 'package:coinly/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
-import '../../../core/router/app_router.dart';
-import '../../../core/theme/app_theme.dart';
+import '../../core/router/app_router.dart';
 
 class PhoneAuthScreen extends StatefulWidget {
   const PhoneAuthScreen({super.key});
@@ -120,7 +120,7 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: const BorderSide(
-                            color: AppTheme.primaryTeal,
+                            color: AppColors.primaryTeal,
                             width: 2,
                           ),
                         ),
@@ -169,7 +169,7 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
                     child: ElevatedButton(
                       onPressed: _isLoading ? null : _sendOTP,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.primaryTeal,
+                        backgroundColor: AppColors.primaryTeal,
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),

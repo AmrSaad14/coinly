@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "766956126566",
+    "project_id": "coinly-egypt",
+    "storage_bucket": "coinly-egypt.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:766956126566:android:5e234aa87265ce197048a7",
+        "android_client_info": {
+          "package_name": "com.coinly.owner"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCJbeXGTSNxGg2JCrom8YEsZsHDt05S_XI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
