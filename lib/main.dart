@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 
 import 'core/di/injection_container.dart' as di;
+import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'core/utils/constants.dart';
-import 'presentation/screens/home_screen.dart';
 
 void main() async {
   // Preserve the splash screen while we initialize
@@ -31,7 +31,8 @@ class MyApp extends StatelessWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.system,
-      home: const HomeScreen(),
+      onGenerateRoute: AppRouter.generateRoute,
+      initialRoute: AppRouter.onboarding,
     );
   }
 }

@@ -55,6 +55,16 @@ dependencies:
   
   # Splash Screen
   flutter_native_splash: ^2.3.8
+  
+  # Firebase
+  firebase_core: ^3.8.1
+  firebase_auth: ^5.3.3
+  
+  # Phone number input
+  intl_phone_field: ^3.2.0
+  
+  # PIN/OTP input
+  pinput: ^5.0.0
 
 dev_dependencies:
   flutter_test:
