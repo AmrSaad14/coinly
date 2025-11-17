@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../../features/home/ui/screens/home_screen.dart';
-import '../../features/add/add_screen.dart';
+import '../../features/add/ui/screens/add_screen.dart';
 import '../../features/history/history_screen.dart';
-import '../../features/profile/profile_screen.dart';
+import '../../features/profile/ui/screens/profile_screen.dart';
 
 class MainLayout extends StatefulWidget {
   const MainLayout({super.key});
