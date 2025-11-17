@@ -40,6 +40,7 @@ class AppColors {
   static const Color neutral700 = Color(0xFF4D4D4D);
   static const Color neutral800 = Color(0xFF333333);
   static const Color neutral900 = Color(0xFF1A1A1A);
+  static const Color neutralGrey = Color(0xFFFAFAFA);
 
   // Legacy aliases for backward compatibility
   static const Color white = neutral100;

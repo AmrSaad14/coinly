@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../../features/home/ui/screens/home_screen.dart';
 import '../../features/add/ui/screens/add_screen.dart';
-import '../../features/history/history_screen.dart';
+import '../../features/withdraw/ui/screens/withdraw_screen.dart';
 import '../../features/profile/ui/screens/profile_screen.dart';
 
 class MainLayout extends StatefulWidget {
@@ -18,7 +18,7 @@ class _MainLayoutState extends State<MainLayout> {
   // List of screens for each navigation tab (Reversed for RTL display)
   final List<Widget> _screens = const [
     ProfileScreen(), // Index 0 - الملف الشخصي (leftmost)
-    HistoryScreen(), // Index 1 - سحب
+    WithDrawScreen(), // Index 1 - سحب
     AddScreen(), // Index 2 - اضافة
     HomeScreen(), // Index 3 - الرئيسية (rightmost)
   ];
