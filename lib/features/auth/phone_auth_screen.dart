@@ -1,6 +1,7 @@
 import 'package:coinly/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../../core/router/app_router.dart';
 
 class PhoneAuthScreen extends StatefulWidget {
@@ -13,6 +14,7 @@ class PhoneAuthScreen extends StatefulWidget {
 class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
   final TextEditingController _phoneController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
   String _completePhoneNumber = '';
   bool _isLoading = false;
 
@@ -28,24 +30,120 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
         _isLoading = true;
       });
 
-      // TODO: Implement Firebase phone authentication
-      // For now, we'll navigate to OTP screen
-      await Future.delayed(const Duration(seconds: 1));
+      // Debug: Print the phone number being sent
+      print('Sending OTP to: $_completePhoneNumber');
 
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
+      try {
+        await _auth.verifyPhoneNumber(
+          phoneNumber: _completePhoneNumber,
+          timeout: const Duration(seconds: 60),
+          verificationCompleted: (PhoneAuthCredential credential) async {
+            // Auto-verification completed (Android only)
+            try {
+              await _auth.signInWithCredential(credential);
+              if (mounted) {
+                setState(() {
+                  _isLoading = false;
+                });
+                // Check if user needs to complete registration
+                _checkUserRegistration();
+              }
+            } catch (e) {
+              if (mounted) {
+                setState(() {
+                  _isLoading = false;
+                });
+                _showErrorSnackBar('حدث خطأ في التحقق التلقائي');
+              }
+            }
+          },
+          verificationFailed: (FirebaseAuthException e) {
+            if (mounted) {
+              setState(() {
+                _isLoading = false;
+              });
 
-        AppRouter.pushNamed(
-          context,
-          AppRouter.otpVerification,
-          arguments: {
-            'phoneNumber': _completePhoneNumber,
+              String errorMessage = 'حدث خطأ أثناء إرسال الرمز';
+
+              if (e.code == 'invalid-phone-number') {
+                errorMessage =
+                    'رقم الهاتف غير صحيح. تأكد من إدخال الرقم بشكل صحيح';
+              } else if (e.code == 'too-many-requests') {
+                errorMessage =
+                    'عدد كبير جداً من المحاولات. يرجى المحاولة لاحقاً';
+              } else if (e.code == 'network-request-failed') {
+                errorMessage = 'تحقق من اتصالك بالإنترنت';
+              } else if (e.code == 'internal-error') {
+                if (e.message?.contains('BILLING_NOT_ENABLED') == true) {
+                  errorMessage =
+                      'يجب تفعيل الفوترة في Firebase أو استخدام أرقام اختبار';
+                } else if (e.message?.contains('reCAPTCHA') == true ||
+                    e.message?.contains('Recaptcha') == true) {
+                  errorMessage =
+                      'خطأ في إعداد reCAPTCHA. يرجى الاتصال بالدعم الفني';
+                }
+              }
+
+              // Debug: Print error details
+              print('Firebase Auth Error: ${e.code} - ${e.message}');
+
+              _showErrorSnackBar(errorMessage);
+            }
+          },
+          codeSent: (String verificationId, int? resendToken) {
+            if (mounted) {
+              setState(() {
+                _isLoading = false;
+              });
+
+              AppRouter.pushNamed(
+                context,
+                AppRouter.otpVerification,
+                arguments: {
+                  'phoneNumber': _completePhoneNumber,
+                  'verificationId': verificationId,
+                },
+              );
+            }
+          },
+          codeAutoRetrievalTimeout: (String verificationId) {
+            // Auto-retrieval timeout callback
           },
         );
+      } catch (e) {
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+          _showErrorSnackBar('حدث خطأ غير متوقع');
+        }
       }
     }
+  }
+
+  void _checkUserRegistration() {
+    final user = _auth.currentUser;
+    if (user != null) {
+      // Check if user has completed registration
+      // For now, we'll navigate to complete registration
+      // You can add Firestore check here to see if user profile exists
+      AppRouter.pushReplacementNamed(
+        context,
+        AppRouter.completeRegistration,
+        arguments: {'phoneNumber': _completePhoneNumber},
+      );
+    }
+  }
+
+  void _showErrorSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+    );
   }
 
   @override
@@ -71,7 +169,7 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   const SizedBox(height: 20),
-                  
+
                   // Title
                   const Text(
                     'تسجيل الدخول',
@@ -82,21 +180,18 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  
+
                   const SizedBox(height: 12),
-                  
+
                   // Subtitle
                   Text(
                     'أدخل رقم هاتفك للمتابعة',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey[600],
-                    ),
+                    style: TextStyle(fontSize: 16, color: Colors.grey[600]),
                     textAlign: TextAlign.center,
                   ),
-                  
+
                   const SizedBox(height: 40),
-                  
+
                   // Phone number field
                   Directionality(
                     textDirection: TextDirection.ltr,
@@ -104,9 +199,7 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
                       controller: _phoneController,
                       decoration: InputDecoration(
                         labelText: 'رقم الهاتف',
-                        labelStyle: const TextStyle(
-                          color: Colors.grey,
-                        ),
+                        labelStyle: const TextStyle(color: Colors.grey),
                         alignLabelWithHint: true,
                         floatingLabelAlignment: FloatingLabelAlignment.start,
                         border: OutlineInputBorder(
@@ -143,12 +236,6 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
                       onChanged: (phone) {
                         _completePhoneNumber = phone.completeNumber;
                       },
-                      onCountryChanged: (country) {
-                        // Update complete phone number when country changes
-                        if (_phoneController.text.isNotEmpty) {
-                          _completePhoneNumber = '+${country.dialCode}${_phoneController.text}';
-                        }
-                      },
                       validator: (value) {
                         if (value == null || value.number.isEmpty) {
                           return 'الرجاء إدخال رقم الهاتف';
@@ -160,9 +247,9 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
                       },
                     ),
                   ),
-                  
+
                   const SizedBox(height: 32),
-                  
+
                   // Submit button
                   SizedBox(
                     height: 56,
@@ -196,9 +283,9 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
                             ),
                     ),
                   ),
-                  
+
                   const Spacer(),
-                  
+
                   // Terms and conditions
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -212,7 +299,7 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
                       textAlign: TextAlign.center,
                     ),
                   ),
-                  
+
                   const SizedBox(height: 20),
                 ],
               ),
@@ -223,4 +310,3 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
     );
   }
 }
-

@@ -3,12 +3,18 @@ import 'package:coinly/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pinput/pinput.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../../core/router/app_router.dart';
 
 class OtpVerificationScreen extends StatefulWidget {
   final String phoneNumber;
+  final String? verificationId;
 
-  const OtpVerificationScreen({super.key, required this.phoneNumber});
+  const OtpVerificationScreen({
+    super.key,
+    required this.phoneNumber,
+    this.verificationId,
+  });
 
   @override
   State<OtpVerificationScreen> createState() => _OtpVerificationScreenState();
@@ -17,13 +23,16 @@ class OtpVerificationScreen extends StatefulWidget {
 class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
   final TextEditingController _otpController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
   bool _isLoading = false;
   int _resendTimer = 60;
   Timer? _timer;
+  String _verificationId = '';
 
   @override
   void initState() {
     super.initState();
+    _verificationId = widget.verificationId ?? '';
     _startResendTimer();
   }
 
@@ -48,16 +57,61 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     });
   }
 
-  void _resendOTP() {
+  void _resendOTP() async {
     if (_resendTimer == 0) {
-      // TODO: Implement resend OTP logic
-      _startResendTimer();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('تم إرسال الرمز مرة أخرى'),
-          backgroundColor: AppColors.primaryTeal,
-        ),
-      );
+      setState(() {
+        _isLoading = true;
+      });
+
+      try {
+        await _auth.verifyPhoneNumber(
+          phoneNumber: widget.phoneNumber,
+          timeout: const Duration(seconds: 60),
+          verificationCompleted: (PhoneAuthCredential credential) async {
+            await _signInWithCredential(credential);
+          },
+          verificationFailed: (FirebaseAuthException e) {
+            if (mounted) {
+              setState(() {
+                _isLoading = false;
+              });
+
+              String errorMessage = 'حدث خطأ أثناء إرسال الرمز';
+              if (e.code == 'too-many-requests') {
+                errorMessage =
+                    'عدد كبير جداً من المحاولات. يرجى المحاولة لاحقاً';
+              } else if (e.code == 'internal-error' &&
+                  e.message?.contains('BILLING_NOT_ENABLED') == true) {
+                errorMessage =
+                    'يجب تفعيل الفوترة في Firebase أو استخدام أرقام اختبار';
+              }
+
+              _showErrorSnackBar(errorMessage);
+            }
+          },
+          codeSent: (String verificationId, int? resendToken) {
+            if (mounted) {
+              setState(() {
+                _isLoading = false;
+                _verificationId = verificationId;
+              });
+
+              _startResendTimer();
+              _showSuccessSnackBar('تم إرسال الرمز مرة أخرى');
+            }
+          },
+          codeAutoRetrievalTimeout: (String verificationId) {
+            _verificationId = verificationId;
+          },
+        );
+      } catch (e) {
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+          _showErrorSnackBar('حدث خطأ غير متوقع');
+        }
+      }
     }
   }
 
@@ -67,22 +121,87 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
         _isLoading = true;
       });
 
-      // TODO: Implement Firebase OTP verification
-      await Future.delayed(const Duration(seconds: 1));
+      try {
+        final credential = PhoneAuthProvider.credential(
+          verificationId: _verificationId,
+          smsCode: _otpController.text,
+        );
+
+        await _signInWithCredential(credential);
+      } on FirebaseAuthException catch (e) {
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+
+          String errorMessage = 'الرمز غير صحيح';
+
+          if (e.code == 'invalid-verification-code') {
+            errorMessage = 'الرمز الذي أدخلته غير صحيح';
+          } else if (e.code == 'session-expired') {
+            errorMessage = 'انتهت صلاحية الرمز. يرجى إعادة الإرسال';
+          }
+
+          _showErrorSnackBar(errorMessage);
+        }
+      } catch (e) {
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+          _showErrorSnackBar('حدث خطأ غير متوقع');
+        }
+      }
+    }
+  }
+
+  Future<void> _signInWithCredential(PhoneAuthCredential credential) async {
+    try {
+      final userCredential = await _auth.signInWithCredential(credential);
 
       if (mounted) {
         setState(() {
           _isLoading = false;
         });
 
-        // Navigate to complete registration screen
-        AppRouter.pushReplacementNamed(
-          context,
-          AppRouter.completeRegistration,
-          arguments: {'phoneNumber': widget.phoneNumber},
-        );
+        // Check if this is a new user
+        if (userCredential.additionalUserInfo?.isNewUser ?? true) {
+          // Navigate to complete registration screen
+          AppRouter.pushReplacementNamed(
+            context,
+            AppRouter.completeRegistration,
+            arguments: {'phoneNumber': widget.phoneNumber},
+          );
+        } else {
+          // Existing user, navigate to home
+          AppRouter.pushNamedAndRemoveUntil(context, AppRouter.home);
+        }
       }
+    } catch (e) {
+      rethrow;
     }
+  }
+
+  void _showSuccessSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: AppColors.primaryTeal,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+    );
+  }
+
+  void _showErrorSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+    );
   }
 
   @override

@@ -37,6 +37,7 @@ class AppRouter {
         return MaterialPageRoute(
           builder: (_) => OtpVerificationScreen(
             phoneNumber: args?['phoneNumber'] ?? '',
+            verificationId: args?['verificationId'],
           ),
           settings: settings,
         );

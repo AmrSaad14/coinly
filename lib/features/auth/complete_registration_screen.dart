@@ -1,5 +1,6 @@
 import 'package:coinly/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../../core/router/app_router.dart';
 
 class CompleteRegistrationScreen extends StatefulWidget {
@@ -16,13 +17,9 @@ class _CompleteRegistrationScreenState
     extends State<CompleteRegistrationScreen> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController =
-      TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  bool _isPasswordVisible = false;
-  bool _isConfirmPasswordVisible = false;
   bool _agreeToTerms = false;
   bool _isLoading = false;
 
@@ -30,8 +27,6 @@ class _CompleteRegistrationScreenState
   void dispose() {
     _nameController.dispose();
     _emailController.dispose();
-    _passwordController.dispose();
-    _confirmPasswordController.dispose();
     super.dispose();
   }
 
@@ -51,16 +46,76 @@ class _CompleteRegistrationScreenState
         _isLoading = true;
       });
 
-      // TODO: Implement registration logic with Firebase
-      await Future.delayed(const Duration(seconds: 2));
+      try {
+        final user = _auth.currentUser;
 
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
+        if (user != null) {
+          // Update user profile with display name
+          await user.updateDisplayName(_nameController.text.trim());
 
-        // Navigate to create store screen
-        AppRouter.pushNamedAndRemoveUntil(context, AppRouter.createStore);
+          // Update email if provided (optional)
+          if (_emailController.text.trim().isNotEmpty) {
+            try {
+              await user.updateEmail(_emailController.text.trim());
+            } catch (e) {
+              // Email update failed, but we can continue
+              // This might happen if email is already in use
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('تم إنشاء الحساب بنجاح'),
+                    backgroundColor: AppColors.primaryTeal,
+                    behavior: SnackBarBehavior.floating,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                );
+              }
+            }
+          }
+
+          // Reload user to get updated info
+          await user.reload();
+
+          if (mounted) {
+            setState(() {
+              _isLoading = false;
+            });
+
+            // Navigate to create store screen
+            AppRouter.pushNamedAndRemoveUntil(context, AppRouter.createStore);
+          }
+        } else {
+          throw Exception('User not authenticated');
+        }
+      } catch (e) {
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+
+          String errorMessage = 'حدث خطأ أثناء إنشاء الحساب';
+
+          if (e is FirebaseAuthException) {
+            if (e.code == 'email-already-in-use') {
+              errorMessage = 'البريد الإلكتروني مستخدم بالفعل';
+            } else if (e.code == 'invalid-email') {
+              errorMessage = 'البريد الإلكتروني غير صحيح';
+            }
+          }
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(errorMessage),
+              backgroundColor: Colors.red,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+          );
+        }
       }
     }
   }
@@ -129,71 +184,21 @@ class _CompleteRegistrationScreenState
 
                   const SizedBox(height: 16),
 
-                  // Email field
+                  // Email field (optional)
                   _buildTextField(
                     controller: _emailController,
-                    label: 'البريد الإلكتروني',
+                    label: 'البريد الإلكتروني (اختياري)',
                     prefixIcon: Icons.email_outlined,
                     keyboardType: TextInputType.emailAddress,
                     validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'الرجاء إدخال البريد الإلكتروني';
-                      }
-                      final emailRegex = RegExp(
-                        r'^[a-zA-Z0-9.]+@[a-zA-Z0-9]+\.[a-zA-Z]+',
-                      );
-                      if (!emailRegex.hasMatch(value)) {
-                        return 'البريد الإلكتروني غير صحيح';
-                      }
-                      return null;
-                    },
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  // Password field
-                  _buildTextField(
-                    controller: _passwordController,
-                    label: 'كلمة المرور',
-                    prefixIcon: Icons.lock_outline,
-                    isPassword: true,
-                    isPasswordVisible: _isPasswordVisible,
-                    onTogglePassword: () {
-                      setState(() {
-                        _isPasswordVisible = !_isPasswordVisible;
-                      });
-                    },
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'الرجاء إدخال كلمة المرور';
-                      }
-                      if (value.length < 6) {
-                        return 'كلمة المرور يجب أن تكون 6 أحرف على الأقل';
-                      }
-                      return null;
-                    },
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  // Confirm password field
-                  _buildTextField(
-                    controller: _confirmPasswordController,
-                    label: 'تأكيد كلمة المرور',
-                    prefixIcon: Icons.lock_outline,
-                    isPassword: true,
-                    isPasswordVisible: _isConfirmPasswordVisible,
-                    onTogglePassword: () {
-                      setState(() {
-                        _isConfirmPasswordVisible = !_isConfirmPasswordVisible;
-                      });
-                    },
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'الرجاء تأكيد كلمة المرور';
-                      }
-                      if (value != _passwordController.text) {
-                        return 'كلمة المرور غير متطابقة';
+                      // Email is optional, only validate if provided
+                      if (value != null && value.isNotEmpty) {
+                        final emailRegex = RegExp(
+                          r'^[a-zA-Z0-9.]+@[a-zA-Z0-9]+\.[a-zA-Z]+',
+                        );
+                        if (!emailRegex.hasMatch(value)) {
+                          return 'البريد الإلكتروني غير صحيح';
+                        }
                       }
                       return null;
                     },
@@ -285,15 +290,11 @@ class _CompleteRegistrationScreenState
     required TextEditingController controller,
     required String label,
     required IconData prefixIcon,
-    bool isPassword = false,
-    bool isPasswordVisible = false,
-    VoidCallback? onTogglePassword,
     TextInputType? keyboardType,
     String? Function(String?)? validator,
   }) {
     return TextFormField(
       controller: controller,
-      obscureText: isPassword && !isPasswordVisible,
       keyboardType: keyboardType,
       validator: validator,
       style: const TextStyle(fontSize: 16),
@@ -301,17 +302,6 @@ class _CompleteRegistrationScreenState
         labelText: label,
         labelStyle: const TextStyle(color: Colors.grey),
         prefixIcon: Icon(prefixIcon, color: Colors.grey),
-        suffixIcon: isPassword
-            ? IconButton(
-                icon: Icon(
-                  isPasswordVisible
-                      ? Icons.visibility_outlined
-                      : Icons.visibility_off_outlined,
-                  color: Colors.grey,
-                ),
-                onPressed: onTogglePassword,
-              )
-            : null,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: Colors.grey),
