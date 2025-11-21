@@ -1,10 +1,11 @@
 import 'dart:async';
 import 'package:coinly/core/theme/app_colors.dart';
+import 'package:coinly/core/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pinput/pinput.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../../core/router/app_router.dart';
+import '../../../../core/router/app_router.dart';
 
 class OtpVerificationScreen extends StatefulWidget {
   final String phoneNumber;
@@ -355,39 +356,10 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                   SizedBox(height: 24),
 
                   // Verify button
-                  SizedBox(
-                    height: 56,
-                    child: ElevatedButton(
-                      onPressed: _isLoading ? null : _verifyOTP,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primaryTeal,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        elevation: 0,
-                        disabledBackgroundColor: AppColors.primaryTeal
-                            .withOpacity(0.6),
-                      ),
-                      child: _isLoading
-                          ? const SizedBox(
-                              height: 24,
-                              width: 24,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                  Colors.white,
-                                ),
-                              ),
-                            )
-                          : const Text(
-                              'تأكيد',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                    ),
+                  CustomButton(
+                    text: 'تأكيد',
+                    onTap: _verifyOTP,
+                    isLoading: _isLoading,
                   ),
 
                   const SizedBox(height: 40),

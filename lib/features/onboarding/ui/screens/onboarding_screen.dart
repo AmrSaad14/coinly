@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'package:coinly/core/theme/app_assets.dart';
 import 'package:coinly/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -17,19 +18,19 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   final List<OnboardingData> _pages = [
     OnboardingData(
-      image: 'assets/images/onboarding_1.svg',
-      title: 'كشك معك أينما كنت',
-      description: 'تحكم في كامل نشاطك التجاري من هاتفك',
+      image: AppAssets.onboarding1,
+      title: 'نظام نقاط متكامل',
+      description: 'شاهد تطور نقاط المستخدمين فور تنفيذ أي نشاط',
     ),
     OnboardingData(
-      image: 'assets/images/onboarding_2.svg',
-      title: 'تابع أرباحك بسهولة',
-      description: 'شاهد إيراداتك وتدفقك المالي فوراً',
+      image: AppAssets.onboarding2,
+      title: 'كل فكة مكسب',
+      description: 'بدل ما الفكة تضيع، خليها نقطة زيادة ليك أو للعمال',
     ),
     OnboardingData(
-      image: 'assets/images/onboarding_3.svg',
-      title: 'إدارة فريقك من أي مكان',
-      description: 'قم بدعوت موظفيك وتحكم فيهم من مكان واحد',
+      image: AppAssets.onboarding3,
+      title: 'تحكم وادارة ذكية',
+      description: 'إدارة العمال والتحويلات والفكة كلها منظمة داخل التطبيق',
     ),
   ];
 
@@ -58,7 +59,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   void _completeOnboarding() {
-    AppRouter.pushReplacementNamed(context, AppRouter.phoneAuth);
+    AppRouter.pushReplacementNamed(context, AppRouter.login);
   }
 
   @override
@@ -168,9 +169,9 @@ class _OnboardingPage extends StatelessWidget {
           Text(
             data.title,
             style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
+              fontSize: 20,
+              fontWeight: FontWeight.w600,
+              color: AppColors.neutral900,
             ),
             textAlign: TextAlign.center,
           ),
@@ -182,8 +183,8 @@ class _OnboardingPage extends StatelessWidget {
             data.description,
             style: TextStyle(
               fontSize: 16,
-              color: Colors.grey[600],
-              height: 1.5,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textGray,
             ),
             textAlign: TextAlign.center,
           ),

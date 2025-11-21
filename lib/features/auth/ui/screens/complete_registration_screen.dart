@@ -1,7 +1,8 @@
 import 'package:coinly/core/theme/app_colors.dart';
+import 'package:coinly/core/widgets/custom_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../../core/router/app_router.dart';
+import '../../../../core/router/app_router.dart';
 
 class CompleteRegistrationScreen extends StatefulWidget {
   final String phoneNumber;
@@ -17,6 +18,10 @@ class _CompleteRegistrationScreenState
     extends State<CompleteRegistrationScreen> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
+
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
@@ -167,9 +172,9 @@ class _CompleteRegistrationScreenState
                   const SizedBox(height: 32),
 
                   // Name field
-                  _buildTextField(
+                  CustomTextField(
                     controller: _nameController,
-                    label: 'الاسم بالكامل',
+                    hint: 'الاسم بالكامل',
                     prefixIcon: Icons.person_outline,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -185,9 +190,9 @@ class _CompleteRegistrationScreenState
                   const SizedBox(height: 16),
 
                   // Email field (optional)
-                  _buildTextField(
+                  CustomTextField(
                     controller: _emailController,
-                    label: 'البريد الإلكتروني (اختياري)',
+                    hint: 'البريد الإلكتروني (اختياري)',
                     prefixIcon: Icons.email_outlined,
                     keyboardType: TextInputType.emailAddress,
                     validator: (value) {
@@ -204,7 +209,28 @@ class _CompleteRegistrationScreenState
                     },
                   ),
 
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 16),
+
+                  // Password field
+                  CustomTextField(
+                    controller: _passwordController,
+                    hint: 'كلمة المرور',
+                    prefixIcon: Icons.lock_outline,
+                    obscureText: true,
+                    showVisibilityToggle: true,
+                    visibilityToggleOnPrefix: true,
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Confirm password field
+                  CustomTextField(
+                    controller: _confirmPasswordController,
+                    hint: 'تأكيد كلمة المرور',
+                    prefixIcon: Icons.lock_outline,
+                    obscureText: true,
+                    showVisibilityToggle: true,
+                    visibilityToggleOnPrefix: true,
+                  ),
 
                   // Terms and conditions checkbox
                   Row(
@@ -282,48 +308,6 @@ class _CompleteRegistrationScreenState
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String label,
-    required IconData prefixIcon,
-    TextInputType? keyboardType,
-    String? Function(String?)? validator,
-  }) {
-    return TextFormField(
-      controller: controller,
-      keyboardType: keyboardType,
-      validator: validator,
-      style: const TextStyle(fontSize: 16),
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: const TextStyle(color: Colors.grey),
-        prefixIcon: Icon(prefixIcon, color: Colors.grey),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Colors.grey),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.grey[300]!),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.primaryTeal, width: 2),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Colors.red),
-        ),
-        focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Colors.red, width: 2),
-        ),
-        filled: true,
-        fillColor: Colors.grey[50],
       ),
     );
   }

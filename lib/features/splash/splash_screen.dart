@@ -1,3 +1,4 @@
+import 'package:coinly/core/theme/app_assets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:coinly/core/router/app_router.dart';
@@ -38,7 +39,7 @@ class _SplashScreenState extends State<SplashScreen>
                     opacity: state.logoOpacity,
                     child: ScaleTransition(
                       scale: state.logoScale,
-                      child: Image.asset('assets/icons/logo_2.png', width: 180),
+                      child: Image.asset(AppAssets.logo2Png)
                     ),
                   ),
                 ),
