@@ -1,6 +1,10 @@
+import 'package:coinly/core/di/injection_container.dart' as di;
 import 'package:coinly/core/router/app_router.dart';
 import 'package:coinly/core/theme/app_colors.dart';
+import 'package:coinly/features/kiosk/logic/create_kiosk_cubit.dart';
+import 'package:coinly/features/kiosk/logic/create_kiosk_state.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class CreatekioskScreen extends StatefulWidget {
@@ -17,7 +21,6 @@ class _CreatekioskScreenState extends State<CreatekioskScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   String? _selectedCategory;
-  bool _isLoading = false;
 
   final List<String> _categories = [
     'وجبات خفيفة',
@@ -26,6 +29,22 @@ class _CreatekioskScreenState extends State<CreatekioskScreen> {
     'اخري',
   ];
 
+  // Map Arabic categories to English kind values
+  String _mapCategoryToKind(String category) {
+    switch (category) {
+      case 'وجبات خفيفة':
+        return 'small';
+      case 'صحف ومجلات':
+        return 'medium';
+      case 'أطعمة ومشروبات':
+        return 'large';
+      case 'اخري':
+        return 'other';
+      default:
+        return 'small';
+    }
+  }
+
   @override
   void dispose() {
     _kioskNameController.dispose();
@@ -33,7 +52,7 @@ class _CreatekioskScreenState extends State<CreatekioskScreen> {
     super.dispose();
   }
 
-  void _createStore() async {
+  void _createStore(BuildContext context) {
     if (_formKey.currentState!.validate()) {
       if (_selectedCategory == null) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -45,25 +64,15 @@ class _CreatekioskScreenState extends State<CreatekioskScreen> {
         return;
       }
 
-      setState(() {
-        _isLoading = true;
-      });
-
-      // TODO: Implement store creation logic with Firebase
-      await Future.delayed(const Duration(seconds: 2));
-
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-
-        // Show success dialog
-        _showSuccessDialog();
-      }
+      context.read<CreateKioskCubit>().createKiosk(
+        name: _kioskNameController.text.trim(),
+        kind: _mapCategoryToKind(_selectedCategory!),
+        location: _kioskLocationController.text.trim(),
+      );
     }
   }
 
-  void _showSuccessDialog() {
+  void _showSuccessDialog(BuildContext context) {
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -137,203 +146,231 @@ class _CreatekioskScreenState extends State<CreatekioskScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Directionality(
-      textDirection: TextDirection.rtl,
-      child: Scaffold(
-        backgroundColor: Colors.white,
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          elevation: 0,
-          title: const Text(
-            'إنشاء كشك',
-            style: TextStyle(
-              color: Colors.black87,
-              fontWeight: FontWeight.bold,
+    return BlocProvider(
+      create: (context) => di.sl<CreateKioskCubit>(),
+      child: BlocListener<CreateKioskCubit, CreateKioskState>(
+        listener: (context, state) {
+          if (state is CreateKioskSuccess) {
+            _showSuccessDialog(context);
+          } else if (state is CreateKioskError) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.message),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        },
+        child: Directionality(
+          textDirection: TextDirection.rtl,
+          child: Scaffold(
+            backgroundColor: Colors.white,
+            appBar: AppBar(
+              backgroundColor: Colors.white,
+              elevation: 0,
+              title: const Text(
+                'إنشاء كشك',
+                style: TextStyle(
+                  color: Colors.black87,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              centerTitle: true,
             ),
-          ),
-          centerTitle: true,
-        ),
-        body: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24.0),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // Welcome message
-                  Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: AppColors.primaryTeal.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Column(
-                      children: [
-                        Icon(
-                          Icons.store,
-                          size: 64,
-                          color: AppColors.primaryTeal,
-                        ),
-                        const SizedBox(height: 12),
-                        const Text(
-                          'مرحباً بك في كوينلي!',
-                          style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'أنشئ كشكك الآن وابدأ في عرض منتجاتك',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.grey[700],
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 32),
-
-                  // Kiosk Name
-                  _buildTextField(
-                    controller: _kioskNameController,
-                    label: 'اسم الكشك',
-                    prefixIcon: Icons.storefront,
-                    hint: 'مثال: كشك الإلكترونيات',
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'الرجاء إدخال اسم الكشك';
-                      }
-                      if (value.length < 3) {
-                        return 'اسم الكشك يجب أن يكون 3 أحرف على الأقل';
-                      }
-                      return null;
-                    },
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  // Kiosk Category
-                  DropdownButtonFormField<String>(
-                    value: _selectedCategory,
-                    decoration: InputDecoration(
-                      labelText: 'تصنيف الكشك',
-                      labelStyle: const TextStyle(color: Colors.grey),
-                      prefixIcon: const Icon(
-                        Icons.category,
-                        color: Colors.grey,
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: Colors.grey),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: Colors.grey[300]!),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(
-                          color: AppColors.primaryTeal,
-                          width: 2,
-                        ),
-                      ),
-                      filled: true,
-                      fillColor: Colors.grey[50],
-                    ),
-                    items: _categories.map((String category) {
-                      return DropdownMenuItem<String>(
-                        value: category,
-                        child: Text(category),
-                      );
-                    }).toList(),
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        _selectedCategory = newValue;
-                      });
-                    },
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  // Kiosk Location
-                  _buildTextField(
-                    controller: _kioskLocationController,
-                    label: 'موقع الكشك',
-                    prefixIcon: Icons.location_on,
-                    hint: 'مثال: شارع التحرير، القاهرة',
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'الرجاء إدخال موقع الكشك';
-                      }
-                      if (value.length < 5) {
-                        return 'الموقع يجب أن يكون 5 أحرف على الأقل';
-                      }
-                      return null;
-                    },
-                  ),
-
-                  const SizedBox(height: 32),
-
-                  // Create Store Button
-                  SizedBox(
-                    height: 56,
-                    child: ElevatedButton(
-                      onPressed: _isLoading ? null : _createStore,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primaryTeal,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
+            body: SafeArea(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(24.0),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // Welcome message
+                      Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: AppColors.primaryTeal.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        elevation: 0,
-                      ),
-                      child: _isLoading
-                          ? const SizedBox(
-                              height: 24,
-                              width: 24,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                  Colors.white,
-                                ),
-                              ),
-                            )
-                          : const Text(
-                              'إنشاء الكشك',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w600,
-                              ),
+                        child: Column(
+                          children: [
+                            Icon(
+                              Icons.store,
+                              size: 64,
+                              color: AppColors.primaryTeal,
                             ),
-                    ),
+                            const SizedBox(height: 12),
+                            const Text(
+                              'مرحباً بك في كوينلي!',
+                              style: TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black87,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'أنشئ كشكك الآن وابدأ في عرض منتجاتك',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.grey[700],
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 32),
+
+                      // Kiosk Name
+                      _buildTextField(
+                        controller: _kioskNameController,
+                        label: 'اسم الكشك',
+                        prefixIcon: Icons.storefront,
+                        hint: 'مثال: كشك الإلكترونيات',
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'الرجاء إدخال اسم الكشك';
+                          }
+                          if (value.length < 3) {
+                            return 'اسم الكشك يجب أن يكون 3 أحرف على الأقل';
+                          }
+                          return null;
+                        },
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      // Kiosk Category
+                      DropdownButtonFormField<String>(
+                        value: _selectedCategory,
+                        decoration: InputDecoration(
+                          labelText: 'تصنيف الكشك',
+                          labelStyle: const TextStyle(color: Colors.grey),
+                          prefixIcon: const Icon(
+                            Icons.category,
+                            color: Colors.grey,
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(color: Colors.grey),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: Colors.grey[300]!),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(
+                              color: AppColors.primaryTeal,
+                              width: 2,
+                            ),
+                          ),
+                          filled: true,
+                          fillColor: Colors.grey[50],
+                        ),
+                        items: _categories.map((String category) {
+                          return DropdownMenuItem<String>(
+                            value: category,
+                            child: Text(category),
+                          );
+                        }).toList(),
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            _selectedCategory = newValue;
+                          });
+                        },
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      // Kiosk Location
+                      _buildTextField(
+                        controller: _kioskLocationController,
+                        label: 'موقع الكشك',
+                        prefixIcon: Icons.location_on,
+                        hint: 'مثال: شارع التحرير، القاهرة',
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'الرجاء إدخال موقع الكشك';
+                          }
+                          if (value.length < 5) {
+                            return 'الموقع يجب أن يكون 5 أحرف على الأقل';
+                          }
+                          return null;
+                        },
+                      ),
+
+                      const SizedBox(height: 32),
+
+                      // Create Store Button
+                      BlocBuilder<CreateKioskCubit, CreateKioskState>(
+                        builder: (context, state) {
+                          final isLoading = state is CreateKioskLoading;
+                          return SizedBox(
+                            height: 56,
+                            child: ElevatedButton(
+                              onPressed: isLoading
+                                  ? null
+                                  : () => _createStore(context),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.primaryTeal,
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                elevation: 0,
+                              ),
+                              child: isLoading
+                                  ? const SizedBox(
+                                      height: 24,
+                                      width: 24,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(
+                                              Colors.white,
+                                            ),
+                                      ),
+                                    )
+                                  : const Text(
+                                      'إنشاء الكشك',
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                            ),
+                          );
+                        },
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      // Skip button
+                      TextButton(
+                        onPressed: () {
+                          // Skip store creation and go to home
+                          AppRouter.pushNamedAndRemoveUntil(
+                            context,
+                            AppRouter.home,
+                          );
+                        },
+                        child: Text(
+                          'تخطي الآن، سأقوم بإنشائه لاحقاً',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 24),
+                    ],
                   ),
-
-                  const SizedBox(height: 16),
-
-                  // Skip button
-                  TextButton(
-                    onPressed: () {
-                      // Skip store creation and go to home
-                      AppRouter.pushNamedAndRemoveUntil(
-                        context,
-                        AppRouter.home,
-                      );
-                    },
-                    child: Text(
-                      'تخطي الآن، سأقوم بإنشائه لاحقاً',
-                      style: TextStyle(fontSize: 16, color: Colors.grey[600]),
-                    ),
-                  ),
-
-                  const SizedBox(height: 24),
-                ],
+                ),
               ),
             ),
           ),

@@ -51,7 +51,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyCJbeXGTSNxGg2JCrom8YEsZsHDt05S_XI',
-    appId: '1:766956126566:android:5e234aa87265ce197048a7',
+    appId: '1:766956126566:android:ec1856ed80578e1b7048a7',
     messagingSenderId: '766956126566',
     projectId: 'coinly-egypt',
     storageBucket: 'coinly-egypt.firebasestorage.app',
@@ -83,5 +83,4 @@ class DefaultFirebaseOptions {
     authDomain: 'coinly-egypt.firebaseapp.com',
     storageBucket: 'coinly-egypt.firebasestorage.app',
   );
-
 }

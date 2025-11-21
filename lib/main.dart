@@ -19,8 +19,20 @@ void main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   // Initialize App Check for security
-  // This is required for phone authentication to work
-  await _initializeAppCheck();
+  // TEMPORARILY DISABLED to test phone auth - App Check debug token needs to be registered
+  // Set to true after registering debug token in Firebase Console
+  const bool enableAppCheck = bool.fromEnvironment(
+    'ENABLE_APP_CHECK',
+    defaultValue: false,
+  );
+  if (enableAppCheck) {
+    await _initializeAppCheck();
+  } else {
+    print('⚠️  App Check is temporarily disabled for testing');
+    print(
+      '📱 Phone auth should work, but App Check is recommended for production',
+    );
+  }
 
   // Configure Firebase Auth for testing
   // This allows test phone numbers to work properly
@@ -39,27 +51,48 @@ void main() async {
 /// This is required for phone authentication with reCAPTCHA Enterprise
 Future<void> _initializeAppCheck() async {
   try {
-    await FirebaseAppCheck.instance.activate(
-      // Use debug provider in debug mode for easier testing
-      androidProvider: kDebugMode
-          ? AndroidProvider.debug
-          : AndroidProvider.playIntegrity,
-      appleProvider: AppleProvider.appAttest,
-    );
-
     if (kDebugMode) {
-      print('✅ App Check initialized successfully (Debug Mode)');
-      print('📱 If you see App Check errors, follow these steps:');
-      print('   1. Check the debug token in logcat');
-      print(
-        '   2. Add it to Firebase Console > App Check > Apps > Manage debug tokens',
+      // In debug mode, use debug provider and get the token
+      await FirebaseAppCheck.instance.activate(
+        androidProvider: AndroidProvider.debug,
+        appleProvider: AppleProvider.appAttest,
       );
-      print('   3. Or follow the setup guide in FIREBASE_RECAPTCHA_SETUP.md');
+
+      print('✅ App Check initialized successfully (Debug Mode)');
+      print('📱 To get the App Check debug token:');
+      print('   1. Check Android logcat for "App Check debug token"');
+      print('   2. Or run: adb logcat | grep -i "app check"');
+      print(
+        '   3. Add the token to Firebase Console > App Check > Apps > Manage debug tokens',
+      );
+
+      // Try to get token after a short delay (token might not be available immediately)
+      Future.delayed(const Duration(seconds: 2), () async {
+        try {
+          final token = await FirebaseAppCheck.instance.getToken();
+          if (token != null && token.isNotEmpty) {
+            print('🔑 App Check Debug Token: $token');
+            print('📋 Copy this token and add it to Firebase Console');
+          }
+        } catch (e) {
+          // Token might not be available yet, that's okay
+          print('💡 Debug token will appear in logcat. Check Android logs.');
+        }
+      });
+    } else {
+      // In release mode, use Play Integrity
+      await FirebaseAppCheck.instance.activate(
+        androidProvider: AndroidProvider.playIntegrity,
+        appleProvider: AppleProvider.appAttest,
+      );
+      print('✅ App Check initialized successfully (Release Mode)');
     }
   } catch (e) {
     print('❌ Error initializing App Check: $e');
     print('⚠️  Phone authentication may not work properly');
-    print('📖 See FIREBASE_RECAPTCHA_SETUP.md for setup instructions');
+    print('💡 If phone auth fails, App Check might need to be configured');
+    print('📖 See FIREBASE_SETUP.md for setup instructions');
+    // Don't throw - let the app continue, but phone auth might fail
   }
 }
 
@@ -105,7 +138,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       themeMode: ThemeMode.system,
       onGenerateRoute: AppRouter.generateRoute,
-      initialRoute: AppRouter.onboarding,
+      initialRoute: AppRouter.splash,
     );
   }
 }

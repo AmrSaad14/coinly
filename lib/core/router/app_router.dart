@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../layout/main_layout.dart';
+import '../../features/splash/splash_screen.dart';
 import '../../features/onboarding/ui/screens/onboarding_screen.dart';
 import '../../features/auth/phone_auth_screen.dart';
 import '../../features/auth/otp_verification_screen.dart';
@@ -8,7 +9,8 @@ import '../../features/kiosk/create_kiosk_screen.dart';
 
 class AppRouter {
   // Route names
-  static const String onboarding = '/';
+  static const String splash = '/';
+  static const String onboarding = '/onboarding';
   static const String phoneAuth = '/phone-auth';
   static const String otpVerification = '/otp-verification';
   static const String completeRegistration = '/complete-registration';
@@ -19,6 +21,12 @@ class AppRouter {
   // Route generator
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
+      case splash:
+        return MaterialPageRoute(
+          builder: (_) => const SplashScreen(),
+          settings: settings,
+        );
+
       case onboarding:
         return MaterialPageRoute(
           builder: (_) => const OnboardingScreen(),

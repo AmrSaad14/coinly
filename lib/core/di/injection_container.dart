@@ -5,6 +5,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../network/network_info.dart';
 import '../utils/constants.dart';
 
+// Features - Kiosk
+import '../../features/kiosk/data/datasources/kiosk_remote_data_source.dart';
+import '../../features/kiosk/data/repository/kiosk_repository.dart';
+import '../../features/kiosk/logic/create_kiosk_cubit.dart';
+
 final sl = GetIt.instance;
 
 Future<void> init() async {
@@ -32,4 +37,23 @@ Future<void> init() async {
   );
 
   sl.registerLazySingleton(() => InternetConnectionChecker());
+
+  //! Features - Kiosk
+  // Data - Register data sources first
+  sl.registerLazySingleton<KioskRemoteDataSource>(
+    () => KioskRemoteDataSourceImpl(dio: sl()),
+  );
+
+  // Data - Register repositories second
+  sl.registerLazySingleton<KioskRepository>(
+    () => KioskRepositoryImpl(
+      remoteDataSource: sl(),
+      networkInfo: sl(),
+    ),
+  );
+
+  // Logic - Register cubits last (they depend on repositories)
+  sl.registerFactory(
+    () => CreateKioskCubit(repository: sl<KioskRepository>()),
+  );
 }
