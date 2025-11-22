@@ -4,7 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CustomTextField extends StatelessWidget {
   final TextEditingController controller;
-  final String label;
+  final String? label;
   final String placeholder;
   final TextInputType? keyboardType;
   final String? Function(String?)? validator;
@@ -12,7 +12,7 @@ class CustomTextField extends StatelessWidget {
   const CustomTextField({
     super.key,
     required this.controller,
-    required this.label,
+    this.label,
     required this.placeholder,
     this.keyboardType,
     this.validator,
@@ -22,16 +22,19 @@ class CustomTextField extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 16.sp,
-            fontWeight: FontWeight.w500,
-            color: Colors.black87,
+        if (label != null && label!.isNotEmpty) ...[
+          Text(
+            label!,
+            style: TextStyle(
+              fontSize: 16.sp,
+              fontWeight: FontWeight.w500,
+              color: Colors.black87,
+            ),
           ),
-        ),
-        SizedBox(height: 12.h),
+          SizedBox(height: 12.h),
+        ],
         TextFormField(
           controller: controller,
           keyboardType: keyboardType,

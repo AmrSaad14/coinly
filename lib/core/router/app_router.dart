@@ -1,4 +1,5 @@
 import 'package:coinly/features/home/ui/screens/notifications_screen.dart';
+import 'package:coinly/features/home/ui/screens/manage_kiosk.dart';
 import 'package:coinly/features/add/ui/screens/add_worker_screen.dart';
 import 'package:coinly/features/add/ui/screens/add_worker_info.dart';
 import 'package:flutter/material.dart';
@@ -27,6 +28,7 @@ class AppRouter {
   static const String createStore = '/create-store';
   static const String home = '/home';
   static const String notifications = '/notifications';
+  static const String manageKiosk = '/manage-kiosk';
   static const String addWorker = '/add-worker';
   static const String addWorkerInfo = '/add-worker-info';
 
@@ -103,6 +105,12 @@ class AppRouter {
       case notifications:
         return MaterialPageRoute(
           builder: (_) => const NotificationsScreen(),
+          settings: settings,
+        );
+
+      case manageKiosk:
+        return MaterialPageRoute(
+          builder: (_) => const ManageKioskScreen(),
           settings: settings,
         );
 

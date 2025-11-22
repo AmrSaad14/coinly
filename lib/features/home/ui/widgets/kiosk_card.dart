@@ -1,6 +1,6 @@
+import 'package:coinly/core/router/app_router.dart';
 import 'package:coinly/core/theme/app_assets.dart';
 import 'package:coinly/core/theme/app_colors.dart';
-import 'package:coinly/core/widgets/app_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
@@ -140,7 +140,9 @@ class KioskCard extends StatelessWidget {
             width: double.infinity,
             height: 44,
             child: ElevatedButton(
-              onPressed: () {},
+              onPressed: () {
+                AppRouter.pushNamed(context, AppRouter.manageKiosk);
+              },
               style: ElevatedButton.styleFrom(
                 elevation: 0,
                 backgroundColor: AppColors.neutral100,
