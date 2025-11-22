@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'stat_circle.dart';
 
 class BalanceSummaryCard extends StatelessWidget {
@@ -12,7 +13,7 @@ class BalanceSummaryCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -22,11 +23,11 @@ class BalanceSummaryCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          const Text(
-            'إجمالي رصيدي',
+          Text(
+            'إجمالي نقاطي',
             style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
+              fontSize: 16.sp,
+              fontWeight: FontWeight.w700,
               color: Colors.black87,
             ),
           ),
@@ -49,7 +50,7 @@ class BalanceSummaryCard extends StatelessWidget {
               ),
               StatCircle(
                 icon: Icons.people_alt_outlined,
-                label: 'عدد العمال',
+                label: 'الايرادات',
                 value: '253 عامل',
               ),
             ],

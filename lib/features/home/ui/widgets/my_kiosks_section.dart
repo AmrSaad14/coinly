@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'kiosk_card.dart';
 
 class MyKiosksSection extends StatelessWidget {
@@ -23,7 +24,7 @@ class MyKiosksSection extends StatelessWidget {
 
         // Horizontal ListView for Kiosk Cards
         SizedBox(
-          height: 250,
+          height: 190.h,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             reverse: true, // RTL support

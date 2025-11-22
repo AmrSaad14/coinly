@@ -1,7 +1,8 @@
+import 'package:coinly/features/kiosk/create_kiosk_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../../features/home/ui/screens/home_screen.dart';
-import '../../features/add/ui/screens/add_screen.dart';
+import '../../features/add/ui/screens/add_worker_screen.dart';
 import '../../features/withdraw/ui/screens/withdraw_screen.dart';
 import '../../features/profile/ui/screens/profile_screen.dart';
 
@@ -19,7 +20,7 @@ class _MainLayoutState extends State<MainLayout> {
   final List<Widget> _screens = const [
     ProfileScreen(), // Index 0 - الملف الشخصي (leftmost)
     WithDrawScreen(), // Index 1 - سحب
-    AddScreen(), // Index 2 - اضافة
+    CreatekioskScreen(), // Index 2 - اضافة
     HomeScreen(), // Index 3 - الرئيسية (rightmost)
   ];
 

@@ -32,6 +32,7 @@ class AppAssets {
   static const String webIcon = '$_icons/web.svg';
   static const String email = '$_icons/email.png';
   static const String passKey = '$_icons/passkey.png';
+  static const String deleteIcon = '$_icons/trash.svg';
 
   // images
   static const String addWorkerImage = '$_images/add_worker.svg';

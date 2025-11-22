@@ -1,8 +1,8 @@
 import 'package:coinly/core/router/app_router.dart';
 import 'package:flutter/material.dart';
 
-class AddScreenKiosksList extends StatelessWidget {
-  const AddScreenKiosksList({super.key});
+class AddKiosksList extends StatelessWidget {
+  const AddKiosksList({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -13,7 +13,7 @@ class AddScreenKiosksList extends StatelessWidget {
           height: 56,
           child: ElevatedButton.icon(
             onPressed: () {
-              // TODO: Navigate to add worker for "كشف النصر"
+              AppRouter.pushNamed(context, AppRouter.addWorkerInfo);
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF2A9578),

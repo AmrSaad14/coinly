@@ -2,6 +2,7 @@ import 'package:coinly/core/theme/app_colors.dart';
 import 'package:coinly/core/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/svg.dart';
 
 /// Reusable dialog that supports optional imagery, title, description,
 /// and one or two action buttons.
@@ -16,6 +17,7 @@ class AppDialog extends StatelessWidget {
     this.customImage,
     this.secondaryButtonText,
     this.onSecondaryPressed,
+    this.height,
   });
 
   final String title;
@@ -26,11 +28,12 @@ class AppDialog extends StatelessWidget {
   final VoidCallback onPrimaryPressed;
   final String? secondaryButtonText;
   final VoidCallback? onSecondaryPressed;
+  final double? height;
 
   Widget? _buildImage() {
     if (customImage != null) return customImage;
     if (imageAsset != null) {
-      return Image.asset(imageAsset!, height: 160.h, fit: BoxFit.contain);
+      return SvgPicture.asset(imageAsset!, height: 70.h, fit: BoxFit.contain);
     }
     return null;
   }
@@ -40,10 +43,11 @@ class AppDialog extends StatelessWidget {
     final Widget? imageWidget = _buildImage();
 
     return Dialog(
+      backgroundColor: AppColors.neutral100,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.r)),
       child: SizedBox(
         width: 300.w,
-        height: 260.h,
+        height: height ?? 260.h,
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 30.w, vertical: 30.h),
           child: Center(
@@ -80,7 +84,9 @@ class AppDialog extends StatelessWidget {
                 if (secondaryButtonText != null)
                   Row(
                     children: [
-                      Expanded(
+                      SizedBox(
+                        width: 100.w,
+                        height: 40.h,
                         child: CustomButton(
                           text: secondaryButtonText!,
                           onTap: () {
@@ -94,7 +100,9 @@ class AppDialog extends StatelessWidget {
                         ),
                       ),
                       SizedBox(width: 12.w),
-                      Expanded(
+                      SizedBox(
+                        width: 100.w,
+                        height: 40.h,
                         child: CustomButton(
                           text: primaryButtonText,
                           onTap: () {
@@ -140,6 +148,7 @@ Future<T?> showAppDialog<T>({
   String? secondaryButtonText,
   VoidCallback? onSecondaryPressed,
   bool barrierDismissible = false,
+  double? height,
 }) {
   return showDialog<T>(
     context: context,
@@ -153,6 +162,7 @@ Future<T?> showAppDialog<T>({
       onPrimaryPressed: onPrimaryPressed,
       secondaryButtonText: secondaryButtonText,
       onSecondaryPressed: onSecondaryPressed,
+      height: height,
     ),
   );
 }

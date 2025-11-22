@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:coinly/core/theme/app_colors.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CustomTextField extends StatelessWidget {
   final TextEditingController controller;
@@ -24,13 +25,13 @@ class CustomTextField extends StatelessWidget {
       children: [
         Text(
           label,
-          style: const TextStyle(
-            fontSize: 16,
+          style: TextStyle(
+            fontSize: 16.sp,
             fontWeight: FontWeight.w500,
             color: Colors.black87,
           ),
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: 12.h),
         TextFormField(
           controller: controller,
           keyboardType: keyboardType,
@@ -39,10 +40,7 @@ class CustomTextField extends StatelessWidget {
           style: const TextStyle(fontSize: 16),
           decoration: InputDecoration(
             hintText: placeholder,
-            hintStyle: const TextStyle(
-              color: Color(0xFFBDBDBD),
-              fontSize: 16,
-            ),
+            hintStyle: const TextStyle(color: Color(0xFFBDBDBD), fontSize: 16),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
@@ -53,7 +51,10 @@ class CustomTextField extends StatelessWidget {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: AppColors.primaryTeal, width: 2),
+              borderSide: const BorderSide(
+                color: AppColors.primaryTeal,
+                width: 2,
+              ),
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
@@ -75,4 +76,3 @@ class CustomTextField extends StatelessWidget {
     );
   }
 }
-

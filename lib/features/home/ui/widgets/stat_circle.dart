@@ -1,4 +1,6 @@
+import 'package:coinly/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class StatCircle extends StatelessWidget {
   final IconData icon;
@@ -21,7 +23,7 @@ class StatCircle extends StatelessWidget {
           width: 70,
           height: 70,
           decoration: const BoxDecoration(
-            color: Color(0xFFD1EEE5),
+            color: AppColors.neutral1000,
             shape: BoxShape.circle,
           ),
           child: Icon(icon, color: const Color(0xFF2A9578), size: 32),
@@ -29,23 +31,22 @@ class StatCircle extends StatelessWidget {
         const SizedBox(height: 10),
         Text(
           label,
-          style: const TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w500,
-            color: Colors.black87,
+          style: TextStyle(
+            fontSize: 16.sp,
+            fontWeight: FontWeight.w600,
+            color: AppColors.textDark,
           ),
         ),
         const SizedBox(height: 4),
         Text(
           value,
-          style: const TextStyle(
-            fontSize: 12,
-            color: Color(0xFF2A9578),
-            fontWeight: FontWeight.w600,
+          style: TextStyle(
+            fontSize: 14.sp,
+            color: AppColors.primary600,
+            fontWeight: FontWeight.w700,
           ),
         ),
       ],
     );
   }
 }
-

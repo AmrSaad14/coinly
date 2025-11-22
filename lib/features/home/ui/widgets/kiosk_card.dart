@@ -1,5 +1,9 @@
+import 'package:coinly/core/theme/app_assets.dart';
 import 'package:coinly/core/theme/app_colors.dart';
+import 'package:coinly/core/widgets/app_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/svg.dart';
 
 class KioskCard extends StatelessWidget {
   final String name;
@@ -29,26 +33,20 @@ class KioskCard extends StatelessWidget {
           // Header with delete icon and name
           Row(
             children: [
-              Container(
-                width: 38,
-                height: 38,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: const Color(0xFFE0E0E0), width: 1),
-                ),
-                child: const Icon(
-                  Icons.delete_outline,
-                  color: Color(0xFFE74C3C),
-                  size: 22,
+              InkWell(
+                onTap: () {},
+                child: SvgPicture.asset(
+                  AppAssets.deleteIcon,
+                  width: 20.w,
+                  height: 20.h,
                 ),
               ),
               Spacer(),
               Text(
                 name,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
+                style: TextStyle(
+                  fontSize: 16.sp,
+                  fontWeight: FontWeight.w500,
                   color: Colors.black87,
                 ),
                 textAlign: TextAlign.right,
@@ -70,7 +68,7 @@ class KioskCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 10.h),
           // Monthly Points Section
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
@@ -79,13 +77,14 @@ class KioskCard extends StatelessWidget {
               RichText(
                 textAlign: TextAlign.right,
                 text: TextSpan(
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontFamily: 'Cairo',
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textMedium,
                     height: 1.5,
                   ),
                   children: [
-                    const TextSpan(
+                    TextSpan(
                       text: 'نقاط الشهر: ',
                       style: TextStyle(
                         color: Color(0xFF616161),
@@ -94,38 +93,36 @@ class KioskCard extends StatelessWidget {
                     ),
                     TextSpan(
                       text: balance,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: Color(0xFF2A9578),
                         fontWeight: FontWeight.w700,
-                        fontSize: 15,
+                        fontSize: 16.sp,
                       ),
                     ),
                   ],
                 ),
               ),
 
-              const SizedBox(height: 10),
+              SizedBox(height: 10.h),
 
               // Debt
               RichText(
                 textAlign: TextAlign.right,
                 text: TextSpan(
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontFamily: 'Cairo',
-                    height: 1.5,
-                  ),
+                  style: TextStyle(fontSize: 14.sp, height: 1.5),
                   children: [
-                    const TextSpan(
+                    TextSpan(
                       text: 'الدين المستحقة: ',
                       style: TextStyle(
+                        fontSize: 14.sp,
                         color: Color(0xFF9E9E9E),
                         fontWeight: FontWeight.w500,
                       ),
                     ),
                     TextSpan(
                       text: debt,
-                      style: const TextStyle(
+                      style: TextStyle(
+                        fontSize: 14.sp,
                         color: AppColors.primaryTeal,
                         fontWeight: FontWeight.w600,
                       ),
@@ -152,10 +149,10 @@ class KioskCard extends StatelessWidget {
                   side: BorderSide(color: AppColors.neutral300, width: 1),
                 ),
               ),
-              child: const Text(
+              child: Text(
                 'ادارة',
                 style: TextStyle(
-                  fontSize: 14,
+                  fontSize: 12.sp,
                   fontWeight: FontWeight.w600,
                   color: AppColors.neutral300,
                 ),

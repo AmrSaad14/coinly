@@ -2,9 +2,10 @@ import 'package:coinly/features/add/ui/widgets/add_kiosks_list.dart';
 import 'package:coinly/features/add/ui/widgets/add_screen_body.dart';
 import 'package:coinly/features/add/ui/widgets/add_screen_header.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-class AddScreen extends StatelessWidget {
-  const AddScreen({super.key});
+class AddWorkerScreen extends StatelessWidget {
+  const AddWorkerScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -18,10 +19,10 @@ class AddScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               AddScreenHeader(),
-              SizedBox(height: 70),
+              SizedBox(height: 70.h),
               AddScreenBody(),
-              const SizedBox(height: 24),
-              AddScreenKiosksList(),
+              SizedBox(height: 24.h),
+              AddKiosksList(),
             ],
           ),
         ),
@@ -29,9 +30,3 @@ class AddScreen extends StatelessWidget {
     );
   }
 }
-
-
-
-
-
-

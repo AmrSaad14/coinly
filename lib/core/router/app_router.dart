@@ -1,3 +1,6 @@
+import 'package:coinly/features/home/ui/screens/notifications_screen.dart';
+import 'package:coinly/features/add/ui/screens/add_worker_screen.dart';
+import 'package:coinly/features/add/ui/screens/add_worker_info.dart';
 import 'package:flutter/material.dart';
 import '../layout/main_layout.dart';
 import '../../features/splash/splash_screen.dart';
@@ -23,6 +26,9 @@ class AppRouter {
   static const String createKiosk = '/create-kiosk';
   static const String createStore = '/create-store';
   static const String home = '/home';
+  static const String notifications = '/notifications';
+  static const String addWorker = '/add-worker';
+  static const String addWorkerInfo = '/add-worker-info';
 
   // Route generator
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -91,6 +97,24 @@ class AppRouter {
       case home:
         return MaterialPageRoute(
           builder: (_) => const MainLayout(),
+          settings: settings,
+        );
+
+      case notifications:
+        return MaterialPageRoute(
+          builder: (_) => const NotificationsScreen(),
+          settings: settings,
+        );
+
+      case addWorker:
+        return MaterialPageRoute(
+          builder: (_) => const AddWorkerScreen(),
+          settings: settings,
+        );
+
+      case addWorkerInfo:
+        return MaterialPageRoute(
+          builder: (_) => const AddWorkerInfoScreen(),
           settings: settings,
         );
 
