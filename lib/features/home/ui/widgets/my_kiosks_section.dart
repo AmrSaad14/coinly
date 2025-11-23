@@ -136,6 +136,7 @@ class _MyKiosksSectionState extends State<MyKiosksSection> {
                 name: market.name,
                 balance: '0 ج.م', // TODO: Update with actual balance from API
                 debt: '0 ج.م', // TODO: Update with actual debt from API
+                marketId: market.id,
               ),
             ),
           );

@@ -12,9 +12,9 @@ class ManageKioskTotalPoints extends StatelessWidget {
 
   const ManageKioskTotalPoints({
     super.key,
-    this.totalPoints = 3700,
-    this.totalEarnings = 3700,
-    this.totalDues = 3700,
+    this.totalPoints = 0,
+    this.totalEarnings = 0,
+    this.totalDues = 0,
     this.onViewTransactions,
   });
 

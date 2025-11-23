@@ -6,6 +6,7 @@ import '../../features/auth/data/models/complete_profile_request_model.dart';
 import '../../features/auth/data/models/login_request_model.dart';
 import '../../features/auth/data/models/login_response_model.dart';
 import '../../features/kiosk/data/models/markets_response_model.dart';
+import '../../features/kiosk/data/models/market_model.dart';
 
 part 'api_service.g.dart';
 
@@ -19,7 +20,8 @@ abstract class ApiService {
   );
 
   @POST('/users/complete_profile')
-  Future<Response<dynamic>> completeProfile(
+  @DioResponseType(ResponseType.json)
+  Future<Response> completeProfile(
     @Body() CompleteProfileRequestModel request,
     @Header('Authorization') String? authorization,
   );
@@ -32,14 +34,22 @@ abstract class ApiService {
     @Header('Authorization') String authorization,
   );
 
+  @GET('/api/v1/owner/markets/{market_id}')
+  Future<MarketModel> getMarketById(
+    @Path('market_id') int marketId,
+    @Header('Authorization') String authorization,
+  );
+
   @POST('/api/v1/owner/markets')
-  Future<Response<dynamic>> createMarket(
+  @DioResponseType(ResponseType.json)
+  Future<Response> createMarket(
     @Body() Map<String, dynamic> request,
     @Header('Authorization') String authorization,
   );
 
   @POST('/logout')
-  Future<Response<dynamic>> logout(
+  @DioResponseType(ResponseType.json)
+  Future<Response> logout(
     @Header('Authorization') String authorization,
   );
 }

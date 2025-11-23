@@ -11,6 +11,7 @@ import '../../features/kiosk/data/datasources/kiosk_remote_data_source.dart';
 import '../../features/kiosk/data/repository/kiosk_repository.dart';
 import '../../features/kiosk/logic/create_kiosk_cubit.dart';
 import '../../features/kiosk/logic/markets_cubit.dart';
+import '../../features/kiosk/logic/market_cubit.dart';
 
 final sl = GetIt.instance;
 
@@ -66,5 +67,8 @@ Future<void> init() async {
   );
   sl.registerFactory(
     () => MarketsCubit(repository: sl<KioskRepository>()),
+  );
+  sl.registerFactory(
+    () => MarketCubit(repository: sl<KioskRepository>()),
   );
 }

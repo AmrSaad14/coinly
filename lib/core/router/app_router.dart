@@ -10,7 +10,7 @@ import '../../features/auth/ui/screens/phone_auth_screen.dart';
 import '../../features/auth/ui/screens/otp_verification_screen.dart';
 import '../../features/auth/ui/screens/complete_registration_screen.dart';
 import '../../features/auth/ui/screens/login_screen.dart';
-import '../../features/auth/ui/screens/owwner_access_screen.dart';
+import '../../features/auth/ui/screens/owner_access_screen.dart';
 import '../../features/auth/ui/screens/select role.dart';
 import '../../features/kiosk/create_kiosk_screen.dart';
 
@@ -88,7 +88,7 @@ class AppRouter {
 
       case ownerAccess:
         return MaterialPageRoute(
-          builder: (_) => const OwwnerAccessScreen(),
+          builder: (_) => const OwnerAccessScreen(),
           settings: settings,
         );
 
@@ -111,8 +111,11 @@ class AppRouter {
         );
 
       case manageKiosk:
+        final args = settings.arguments as Map<String, dynamic>?;
         return MaterialPageRoute(
-          builder: (_) => const ManageKioskScreen(),
+          builder: (_) => ManageKioskScreen(
+            marketId: args?['marketId'] as int?,
+          ),
           settings: settings,
         );
 

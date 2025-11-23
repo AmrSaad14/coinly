@@ -9,12 +9,14 @@ class KioskCard extends StatelessWidget {
   final String name;
   final String balance;
   final String debt;
+  final int? marketId;
 
   const KioskCard({
     super.key,
     required this.name,
     required this.balance,
     required this.debt,
+    this.marketId,
   });
 
   @override
@@ -141,7 +143,11 @@ class KioskCard extends StatelessWidget {
             height: 44,
             child: ElevatedButton(
               onPressed: () {
-                AppRouter.pushNamed(context, AppRouter.manageKiosk);
+                AppRouter.pushNamed(
+                  context,
+                  AppRouter.manageKiosk,
+                  arguments: marketId != null ? {'marketId': marketId} : null,
+                );
               },
               style: ElevatedButton.styleFrom(
                 elevation: 0,

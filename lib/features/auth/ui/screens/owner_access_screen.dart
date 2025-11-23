@@ -5,15 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class OwwnerAccessScreen extends StatelessWidget {
-  const OwwnerAccessScreen({super.key});
+class OwnerAccessScreen extends StatelessWidget {
+  const OwnerAccessScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-
-      ),
+      appBar: AppBar(),
       body: Center(
         child: SafeArea(
           child: Column(
@@ -42,7 +40,7 @@ class OwwnerAccessScreen extends StatelessWidget {
               CustomButton(
                 text: 'للتواصل معنا عبر واتساب',
                 onTap: () {
-                   launchUrl(Uri.parse('https://wa.me/+201158883085'));
+                  launchUrl(Uri.parse('https://wa.me/+201158883085'));
                 },
               ),
             ],

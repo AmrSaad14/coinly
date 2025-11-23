@@ -9,6 +9,7 @@ import '../models/market_model.dart';
 abstract class KioskRepository {
   Future<Either<Failure, void>> createKiosk(CreateKioskRequestModel request, String authorization);
   Future<Either<Failure, List<MarketModel>>> getOwnerMarkets(String authorization);
+  Future<Either<Failure, MarketModel>> getMarketById(int marketId, String authorization);
 }
 
 class KioskRepositoryImpl implements KioskRepository {
@@ -49,6 +50,27 @@ class KioskRepositoryImpl implements KioskRepository {
       try {
         final markets = await remoteDataSource.getOwnerMarkets(authorization);
         return Right(markets);
+      } on ServerException catch (e) {
+        return Left(ServerFailure(e.message));
+      } on NetworkException catch (e) {
+        return Left(NetworkFailure(e.message));
+      } catch (e) {
+        return Left(ServerFailure('Unexpected error: ${e.toString()}'));
+      }
+    } else {
+      return const Left(NetworkFailure('No internet connection'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, MarketModel>> getMarketById(
+    int marketId,
+    String authorization,
+  ) async {
+    if (await networkInfo.isConnected) {
+      try {
+        final market = await remoteDataSource.getMarketById(marketId, authorization);
+        return Right(market);
       } on ServerException catch (e) {
         return Left(ServerFailure(e.message));
       } on NetworkException catch (e) {
