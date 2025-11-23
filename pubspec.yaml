@@ -51,6 +51,8 @@ dependencies:
 
   # Network
   dio: ^5.4.0
+  retrofit: ^4.0.3
+  json_annotation: ^4.9.0
   internet_connection_checker: ^1.0.0+1
 
   # Local Storage
@@ -80,6 +82,11 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^5.0.0
+  
+  # Code Generation
+  retrofit_generator: ^8.0.6
+  json_serializable: ^6.7.1
+  build_runner: ^2.4.7
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

@@ -1,8 +1,14 @@
 import 'package:coinly/core/theme/app_colors.dart';
 import 'package:coinly/core/widgets/custom_text_field.dart';
+import 'package:coinly/core/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:dio/dio.dart';
 import '../../../../core/router/app_router.dart';
+import '../../../../core/di/injection_container.dart' as di;
+import '../../../../core/network/api_service.dart';
+import '../../../../core/utils/constants.dart';
+import '../../data/models/complete_profile_request_model.dart';
 
 class CompleteRegistrationScreen extends StatefulWidget {
   final String phoneNumber;
@@ -21,6 +27,7 @@ class _CompleteRegistrationScreenState
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
       TextEditingController();
+  final TextEditingController _jobController = TextEditingController();
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -32,6 +39,9 @@ class _CompleteRegistrationScreenState
   void dispose() {
     _nameController.dispose();
     _emailController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    _jobController.dispose();
     super.dispose();
   }
 
@@ -54,47 +64,175 @@ class _CompleteRegistrationScreenState
       try {
         final user = _auth.currentUser;
 
-        if (user != null) {
-          // Update user profile with display name
-          await user.updateDisplayName(_nameController.text.trim());
-
-          // Update email if provided (optional)
-          if (_emailController.text.trim().isNotEmpty) {
-            try {
-              await user.updateEmail(_emailController.text.trim());
-            } catch (e) {
-              // Email update failed, but we can continue
-              // This might happen if email is already in use
-              if (mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('تم إنشاء الحساب بنجاح'),
-                    backgroundColor: AppColors.primaryTeal,
-                    behavior: SnackBarBehavior.floating,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                );
-              }
-            }
-          }
-
-          // Reload user to get updated info
-          await user.reload();
-
-          if (mounted) {
-            setState(() {
-              _isLoading = false;
-            });
-
-            // Navigate to create store screen
-            AppRouter.pushNamedAndRemoveUntil(context, AppRouter.createStore);
-          }
-        } else {
+        if (user == null) {
           throw Exception('User not authenticated');
         }
+
+        final firebaseUid = user.uid;
+
+        // Get Firebase ID Token for authorization
+        String? idToken;
+        try {
+          idToken = await user.getIdToken();
+          print('🔑 Firebase ID Token obtained: ${idToken?.substring(0, 20)}...');
+        } catch (e) {
+          print('⚠️ Failed to get ID token: $e');
+        }
+
+        // Create request model
+        final request = CompleteProfileRequestModel(
+          firebaseUid: firebaseUid,
+          clientId: AppConstants.clientId,
+          clientSecret: AppConstants.clientSecret,
+          user: UserData(
+            fullName: _nameController.text.trim(),
+            email: _emailController.text.trim(),
+            password: _passwordController.text,
+            job: _jobController.text.trim(),
+          ),
+        );
+
+        // Debug: Print request details
+        print('');
+        print('═══════════════════════════════════════════════════════════');
+        print('🌐 ========== COMPLETE PROFILE API CALL ==========');
+        print('═══════════════════════════════════════════════════════════');
+        print('');
+        print('📱 Phone Number: ${widget.phoneNumber}');
+        print('🆔 Firebase UID: $firebaseUid');
+        print('🔑 Authorization: ${idToken != null ? "Bearer ${idToken.substring(0, 20)}..." : "None"}');
+        print('📦 Request Body:');
+        final requestJson = request.toJson();
+        // Pretty print the JSON
+        print('{');
+        requestJson.forEach((key, value) {
+          if (value is Map) {
+            print('  "$key": {');
+            value.forEach((k, v) {
+              print('    "$k": "$v"');
+            });
+            print('  }');
+          } else {
+            print('  "$key": "$value"');
+          }
+        });
+        print('}');
+        print('');
+        print('🚀 Sending POST request to: ${AppConstants.baseUrl}/users/complete_profile');
+        print('');
+        print('═══════════════════════════════════════════════════════════');
+        print('');
+
+        // Call API with authorization header
+        final apiService = di.sl<ApiService>();
+        final authorization = idToken != null ? 'Bearer $idToken' : null;
+        final response = await apiService.completeProfile(request, authorization);
+
+        // Debug: Print response details
+        print('');
+        print('═══════════════════════════════════════════════════════════');
+        print('✅ ========== COMPLETE PROFILE API RESPONSE ==========');
+        print('═══════════════════════════════════════════════════════════');
+        print('');
+        print('📊 Status Code: ${response.statusCode}');
+        print('📝 Status Message: ${response.statusMessage}');
+        print('🔗 Headers:');
+        response.headers.forEach((key, values) {
+          print('   $key: ${values.join(", ")}');
+        });
+        print('');
+        print('📦 Response Data:');
+        if (response.data != null) {
+          if (response.data is Map) {
+            print('   Type: Map');
+            print('   Content: ${response.data}');
+          } else if (response.data is String) {
+            print('   Type: String');
+            print('   Content: ${response.data}');
+          } else {
+            print('   Type: ${response.data.runtimeType}');
+            print('   Content: ${response.data}');
+          }
+        } else {
+          print('   (No response data)');
+        }
+        print('');
+        print('📋 Response Type: ${response.runtimeType}');
+        print('📋 Request Options: ${response.requestOptions.uri}');
+        print('📋 Request Method: ${response.requestOptions.method}');
+        print('');
+        print('═══════════════════════════════════════════════════════════');
+        print('');
+
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+
+          // Show success message
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text('تم إنشاء الحساب بنجاح'),
+              backgroundColor: AppColors.primaryTeal,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+          );
+
+          // Navigate to create store screen
+          AppRouter.pushNamedAndRemoveUntil(context, AppRouter.createStore);
+        }
       } catch (e) {
+        print('');
+        print('═══════════════════════════════════════════════════════════');
+        print('❌ ========== COMPLETE PROFILE API ERROR ==========');
+        print('═══════════════════════════════════════════════════════════');
+        print('');
+        print('❌ Error Type: ${e.runtimeType}');
+        print('❌ Error: $e');
+        print('');
+
+        // If it's a DioException, show more details
+        if (e is DioException) {
+          print('📋 DioException Details:');
+          print('   Status Code: ${e.response?.statusCode}');
+          print('   Status Message: ${e.response?.statusMessage}');
+          print('   Request Path: ${e.requestOptions.path}');
+          print('   Request Method: ${e.requestOptions.method}');
+          print('   Request Data: ${e.requestOptions.data}');
+          print('   Request Headers: ${e.requestOptions.headers}');
+          print('');
+          print('📦 Response Data:');
+          if (e.response?.data != null) {
+            print('   ${e.response?.data}');
+          } else {
+            print('   (No response data)');
+          }
+          print('');
+          print('📋 Response Headers:');
+          e.response?.headers.forEach((key, values) {
+            print('   $key: ${values.join(", ")}');
+          });
+        } else if (e.toString().contains('DioException') ||
+            e.toString().contains('DioError')) {
+          print('📋 Error Details:');
+          print('   This is a network/HTTP error');
+          if (e.toString().contains('401')) {
+            print('   Status: 401 Unauthorized');
+          } else if (e.toString().contains('403')) {
+            print('   Status: 403 Forbidden');
+          } else if (e.toString().contains('400')) {
+            print('   Status: 400 Bad Request');
+          } else if (e.toString().contains('500')) {
+            print('   Status: 500 Server Error');
+          }
+        }
+        print('');
+        print('═══════════════════════════════════════════════════════════');
+        print('');
+
         if (mounted) {
           setState(() {
             _isLoading = false;
@@ -102,11 +240,35 @@ class _CompleteRegistrationScreenState
 
           String errorMessage = 'حدث خطأ أثناء إنشاء الحساب';
 
-          if (e is FirebaseAuthException) {
-            if (e.code == 'email-already-in-use') {
-              errorMessage = 'البريد الإلكتروني مستخدم بالفعل';
-            } else if (e.code == 'invalid-email') {
-              errorMessage = 'البريد الإلكتروني غير صحيح';
+          // Check if it's a DioException and extract server error message
+          if (e is DioException && e.response?.data != null) {
+            final responseData = e.response!.data;
+            if (responseData is Map && responseData.containsKey('error')) {
+              final serverError = responseData['error'];
+              errorMessage = 'خطأ من الخادم: $serverError';
+              
+              // Specific handling for common errors
+              if (serverError.toString().toLowerCase().contains('invalid client')) {
+                errorMessage = 'معرف العميل غير صحيح. يرجى التحقق من الإعدادات';
+              } else if (serverError.toString().toLowerCase().contains('unauthorized')) {
+                errorMessage = 'غير مصرح. يرجى التحقق من بيانات الاعتماد';
+              }
+            } else if (responseData is Map && responseData.containsKey('message')) {
+              errorMessage = 'خطأ: ${responseData['message']}';
+            }
+          } else {
+            // Fallback to status code based messages
+            if (e.toString().contains('SocketException') ||
+                e.toString().contains('TimeoutException')) {
+              errorMessage = 'فشل الاتصال بالخادم. يرجى المحاولة مرة أخرى';
+            } else if (e.toString().contains('401')) {
+              errorMessage = 'فشل التحقق من المستخدم (401)';
+            } else if (e.toString().contains('403')) {
+              errorMessage = 'غير مصرح (403)';
+            } else if (e.toString().contains('400')) {
+              errorMessage = 'بيانات غير صحيحة (400)';
+            } else if (e.toString().contains('500')) {
+              errorMessage = 'خطأ في الخادم (500)';
             }
           }
 
@@ -118,6 +280,7 @@ class _CompleteRegistrationScreenState
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
               ),
+              duration: const Duration(seconds: 4),
             ),
           );
         }
@@ -189,21 +352,21 @@ class _CompleteRegistrationScreenState
 
                   const SizedBox(height: 16),
 
-                  // Email field (optional)
+                  // Email field
                   CustomTextField(
                     controller: _emailController,
-                    hint: 'البريد الإلكتروني (اختياري)',
+                    hint: 'البريد الإلكتروني',
                     prefixIcon: Icons.email_outlined,
                     keyboardType: TextInputType.emailAddress,
                     validator: (value) {
-                      // Email is optional, only validate if provided
-                      if (value != null && value.isNotEmpty) {
-                        final emailRegex = RegExp(
-                          r'^[a-zA-Z0-9.]+@[a-zA-Z0-9]+\.[a-zA-Z]+',
-                        );
-                        if (!emailRegex.hasMatch(value)) {
-                          return 'البريد الإلكتروني غير صحيح';
-                        }
+                      if (value == null || value.isEmpty) {
+                        return 'الرجاء إدخال البريد الإلكتروني';
+                      }
+                      final emailRegex = RegExp(
+                        r'^[a-zA-Z0-9.]+@[a-zA-Z0-9]+\.[a-zA-Z]+',
+                      );
+                      if (!emailRegex.hasMatch(value)) {
+                        return 'البريد الإلكتروني غير صحيح';
                       }
                       return null;
                     },
@@ -219,6 +382,15 @@ class _CompleteRegistrationScreenState
                     obscureText: true,
                     showVisibilityToggle: true,
                     visibilityToggleOnPrefix: true,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'الرجاء إدخال كلمة المرور';
+                      }
+                      if (value.length < 6) {
+                        return 'كلمة المرور يجب أن تكون 6 أحرف على الأقل';
+                      }
+                      return null;
+                    },
                   ),
                   const SizedBox(height: 16),
 
@@ -230,6 +402,30 @@ class _CompleteRegistrationScreenState
                     obscureText: true,
                     showVisibilityToggle: true,
                     visibilityToggleOnPrefix: true,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'الرجاء تأكيد كلمة المرور';
+                      }
+                      if (value != _passwordController.text) {
+                        return 'كلمة المرور غير متطابقة';
+                      }
+                      return null;
+                    },
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // Job field
+                  CustomTextField(
+                    controller: _jobController,
+                    hint: 'المهنة',
+                    prefixIcon: Icons.work_outline,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'الرجاء إدخال المهنة';
+                      }
+                      return null;
+                    },
                   ),
 
                   // Terms and conditions checkbox
@@ -269,37 +465,10 @@ class _CompleteRegistrationScreenState
                   const SizedBox(height: 24),
 
                   // Register button
-                  SizedBox(
-                    height: 56,
-                    child: ElevatedButton(
-                      onPressed: _isLoading ? null : _completeRegistration,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primaryTeal,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        elevation: 0,
-                      ),
-                      child: _isLoading
-                          ? const SizedBox(
-                              height: 24,
-                              width: 24,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                  Colors.white,
-                                ),
-                              ),
-                            )
-                          : const Text(
-                              'إنشاء حساب',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                    ),
+                  CustomButton(
+                    text: 'إنشاء حساب',
+                    onTap: _completeRegistration,
+                    isLoading: _isLoading,
                   ),
 
                   const SizedBox(height: 24),

@@ -31,7 +31,10 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
       });
 
       // Debug: Print the phone number being sent
-      print('Sending OTP to: $_completePhoneNumber');
+      print('📱 ========== FIREBASE PHONE AUTH DEBUG ==========');
+      print('📱 Sending OTP to: $_completePhoneNumber');
+      print('📱 Firebase Auth Instance: ${_auth.app.name}');
+      print('📱 Current User: ${_auth.currentUser?.uid ?? "None"}');
 
       try {
         await _auth.verifyPhoneNumber(
@@ -39,8 +42,16 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
           timeout: const Duration(seconds: 60),
           verificationCompleted: (PhoneAuthCredential credential) async {
             // Auto-verification completed (Android only)
+            print('✅ AUTO-VERIFICATION COMPLETED');
+            print('✅ Credential Provider: ${credential.providerId}');
+            print('✅ Sign-In Method: ${credential.signInMethod}');
             try {
-              await _auth.signInWithCredential(credential);
+              final userCredential = await _auth.signInWithCredential(credential);
+              print('✅ Sign-in successful');
+              print('✅ User UID: ${userCredential.user?.uid}');
+              print('✅ User Phone: ${userCredential.user?.phoneNumber}');
+              print('✅ Is New User: ${userCredential.additionalUserInfo?.isNewUser}');
+              
               if (mounted) {
                 setState(() {
                   _isLoading = false;
@@ -49,6 +60,7 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
                 _checkUserRegistration();
               }
             } catch (e) {
+              print('❌ Auto-verification sign-in error: $e');
               if (mounted) {
                 setState(() {
                   _isLoading = false;
@@ -58,6 +70,12 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
             }
           },
           verificationFailed: (FirebaseAuthException e) {
+            print('❌ ========== VERIFICATION FAILED ==========');
+            print('❌ Error Code: ${e.code}');
+            print('❌ Error Message: ${e.message}');
+            print('❌ Error Details: ${e.toString()}');
+            print('❌ Stack Trace: ${e.stackTrace}');
+            
             if (mounted) {
               setState(() {
                 _isLoading = false;
@@ -84,13 +102,17 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
                 }
               }
 
-              // Debug: Print error details
-              print('Firebase Auth Error: ${e.code} - ${e.message}');
-
               _showErrorSnackBar(errorMessage);
             }
           },
           codeSent: (String verificationId, int? resendToken) {
+            print('✅ ========== CODE SENT SUCCESSFULLY ==========');
+            print('✅ Verification ID: $verificationId');
+            print('✅ Verification ID Length: ${verificationId.length}');
+            print('✅ Resend Token: $resendToken');
+            print('✅ Phone Number: $_completePhoneNumber');
+            print('✅ Timestamp: ${DateTime.now().toIso8601String()}');
+            
             if (mounted) {
               setState(() {
                 _isLoading = false;
@@ -107,6 +129,9 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
             }
           },
           codeAutoRetrievalTimeout: (String verificationId) {
+            print('⏱️ ========== AUTO-RETRIEVAL TIMEOUT ==========');
+            print('⏱️ Verification ID: $verificationId');
+            print('⏱️ Timestamp: ${DateTime.now().toIso8601String()}');
             // Auto-retrieval timeout callback
           },
         );
