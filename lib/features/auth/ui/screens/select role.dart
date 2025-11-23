@@ -9,8 +9,14 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 class SelectUserRoleScreen extends StatelessWidget {
   const SelectUserRoleScreen({super.key});
 
+  static const String ownerRole = 'owner';
+  static const String workerRole = 'worker';
+
   @override
   Widget build(BuildContext context) {
+    // Get phone number from route arguments
+    final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    final phoneNumber = args?['phoneNumber'] ?? '';
     return Scaffold(
       body: SafeArea(
         child: Center(
@@ -41,7 +47,16 @@ class SelectUserRoleScreen extends StatelessWidget {
                   title: 'هل انت متأكد من تسجيل حسابك مالك؟',
                   primaryButtonText: 'تأكيد',
                   onPrimaryPressed: () {
-                    AppRouter.pushNamed(context, AppRouter.ownerAccess);
+                    Navigator.pop(context); // Close dialog
+                    // Navigate to complete registration with owner credentials
+                    AppRouter.pushReplacementNamed(
+                      context,
+                      AppRouter.completeRegistration,
+                      arguments: {
+                        'phoneNumber': phoneNumber,
+                        'role': ownerRole,
+                      },
+                    );
                   },
                   secondaryButtonText: 'إلغاء',
                 ),
@@ -52,13 +67,22 @@ class SelectUserRoleScreen extends StatelessWidget {
                 backgroundColor: AppColors.scaffoldBackground,
                 textColor: AppColors.textGray,
                 borderColor: AppColors.textGray,
-                text: 'موظف',
+                text: 'عامل',
                 onTap: () => showAppDialog(
                   context: context,
-                  title: 'هل انت متأكد من تسجيل حسابك موظف؟',
+                  title: 'هل انت متأكد من تسجيل حسابك عامل؟',
                   primaryButtonText: 'تأكيد',
                   onPrimaryPressed: () {
-                    AppRouter.pushNamed(context, AppRouter.home);
+                    Navigator.pop(context); // Close dialog
+                    // Navigate to complete registration with worker credentials
+                    AppRouter.pushReplacementNamed(
+                      context,
+                      AppRouter.completeRegistration,
+                      arguments: {
+                        'phoneNumber': phoneNumber,
+                        'role': workerRole,
+                      },
+                    );
                   },
                   secondaryButtonText: 'إلغاء',
                 ),

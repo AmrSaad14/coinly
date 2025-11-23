@@ -3,6 +3,8 @@ import 'package:retrofit/retrofit.dart';
 import '../../features/auth/data/models/verify_user_request_model.dart';
 import '../../features/auth/data/models/verify_user_response_model.dart';
 import '../../features/auth/data/models/complete_profile_request_model.dart';
+import '../../features/auth/data/models/login_request_model.dart';
+import '../../features/auth/data/models/login_response_model.dart';
 
 part 'api_service.g.dart';
 
@@ -16,8 +18,13 @@ abstract class ApiService {
   );
 
   @POST('/users/complete_profile')
-  Future<Response> completeProfile(
+  Future<Response<dynamic>> completeProfile(
     @Body() CompleteProfileRequestModel request,
     @Header('Authorization') String? authorization,
+  );
+
+  @POST('/oauth/token')
+  Future<LoginResponseModel> login(
+    @Body() LoginRequestModel request,
   );
 }

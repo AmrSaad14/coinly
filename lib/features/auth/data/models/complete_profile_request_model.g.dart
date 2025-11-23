@@ -21,7 +21,7 @@ Map<String, dynamic> _$CompleteProfileRequestModelToJson(
       'firebase_uid': instance.firebaseUid,
       'client_id': instance.clientId,
       'client_secret': instance.clientSecret,
-      'user': instance.user.toJson(),
+      'user': instance.user,
     };
 
 UserData _$UserDataFromJson(Map<String, dynamic> json) => UserData(

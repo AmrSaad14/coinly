@@ -74,14 +74,16 @@ class AppRouter {
         return MaterialPageRoute(
           builder: (_) => CompleteRegistrationScreen(
             phoneNumber: args?['phoneNumber'] ?? '',
+            role: args?['role'],
           ),
           settings: settings,
         );
 
       case selectUserRole:
+        final args = settings.arguments as Map<String, dynamic>?;
         return MaterialPageRoute(
           builder: (_) => const SelectUserRoleScreen(),
-          settings: settings,
+          settings: RouteSettings(name: settings.name, arguments: args),
         );
 
       case ownerAccess:

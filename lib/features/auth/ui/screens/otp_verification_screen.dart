@@ -376,14 +376,14 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
           _isLoading = false;
         });
 
-        // After successful Firebase OTP verification, always navigate to complete registration
+        // After successful Firebase OTP verification, navigate to select role screen
         // Firebase verification already succeeded, so we proceed regardless of backend response
-        print('✅ OTP verified successfully - Navigating to complete registration');
-        
-        // Navigate to complete registration screen
+        print('✅ OTP verified successfully - Navigating to select role screen');
+
+        // Navigate to select role screen
         AppRouter.pushReplacementNamed(
           context,
-          AppRouter.completeRegistration,
+          AppRouter.selectUserRole,
           arguments: {'phoneNumber': phoneNumber},
         );
       }

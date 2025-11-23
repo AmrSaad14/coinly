@@ -11,6 +11,9 @@ class OwwnerAccessScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+
+      ),
       body: Center(
         child: SafeArea(
           child: Column(
@@ -39,8 +42,7 @@ class OwwnerAccessScreen extends StatelessWidget {
               CustomButton(
                 text: 'للتواصل معنا عبر واتساب',
                 onTap: () {
-                  AppRouter.pushNamed(context, AppRouter.home);
-                  // launchUrl(Uri.parse('https://wa.me/966555555555'));
+                   launchUrl(Uri.parse('https://wa.me/+201158883085'));
                 },
               ),
             ],

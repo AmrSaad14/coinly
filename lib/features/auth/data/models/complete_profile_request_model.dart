@@ -50,3 +50,4 @@ class UserData {
   Map<String, dynamic> toJson() => _$UserDataToJson(this);
 }
 
+

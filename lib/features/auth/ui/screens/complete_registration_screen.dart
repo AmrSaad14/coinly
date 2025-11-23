@@ -12,8 +12,13 @@ import '../../data/models/complete_profile_request_model.dart';
 
 class CompleteRegistrationScreen extends StatefulWidget {
   final String phoneNumber;
+  final String? role; // 'owner' or 'worker'
 
-  const CompleteRegistrationScreen({super.key, required this.phoneNumber});
+  const CompleteRegistrationScreen({
+    super.key,
+    required this.phoneNumber,
+    this.role,
+  });
 
   @override
   State<CompleteRegistrationScreen> createState() =>
@@ -74,16 +79,41 @@ class _CompleteRegistrationScreenState
         String? idToken;
         try {
           idToken = await user.getIdToken();
-          print('🔑 Firebase ID Token obtained: ${idToken?.substring(0, 20)}...');
+          print(
+            '🔑 Firebase ID Token obtained: ${idToken?.substring(0, 20)}...',
+          );
         } catch (e) {
           print('⚠️ Failed to get ID token: $e');
         }
 
+        // Get role-specific client credentials
+        final String clientId;
+        final String clientSecret;
+        final String roleName;
+
+        if (widget.role == 'owner') {
+          clientId = AppConstants.ownerClientId;
+          clientSecret = AppConstants.ownerClientSecret;
+          roleName = 'مالك';
+        } else if (widget.role == 'worker') {
+          clientId = AppConstants.workerClientId;
+          clientSecret = AppConstants.workerClientSecret;
+          roleName = 'عامل';
+        } else {
+          // Fallback to default (should not happen, but for safety)
+          clientId = AppConstants.clientId;
+          clientSecret = AppConstants.clientSecret;
+          roleName = 'غير محدد';
+        }
+
+        print('👤 Selected Role: $roleName');
+        print('🔑 Using Client ID: ${clientId.substring(0, 20)}...');
+
         // Create request model
         final request = CompleteProfileRequestModel(
           firebaseUid: firebaseUid,
-          clientId: AppConstants.clientId,
-          clientSecret: AppConstants.clientSecret,
+          clientId: clientId,
+          clientSecret: clientSecret,
           user: UserData(
             fullName: _nameController.text.trim(),
             email: _emailController.text.trim(),
@@ -100,7 +130,9 @@ class _CompleteRegistrationScreenState
         print('');
         print('📱 Phone Number: ${widget.phoneNumber}');
         print('🆔 Firebase UID: $firebaseUid');
-        print('🔑 Authorization: ${idToken != null ? "Bearer ${idToken.substring(0, 20)}..." : "None"}');
+        print(
+          '🔑 Authorization: ${idToken != null ? "Bearer ${idToken.substring(0, 20)}..." : "None"}',
+        );
         print('📦 Request Body:');
         final requestJson = request.toJson();
         // Pretty print the JSON
@@ -118,7 +150,9 @@ class _CompleteRegistrationScreenState
         });
         print('}');
         print('');
-        print('🚀 Sending POST request to: ${AppConstants.baseUrl}/users/complete_profile');
+        print(
+          '🚀 Sending POST request to: ${AppConstants.baseUrl}/users/complete_profile',
+        );
         print('');
         print('═══════════════════════════════════════════════════════════');
         print('');
@@ -126,7 +160,10 @@ class _CompleteRegistrationScreenState
         // Call API with authorization header
         final apiService = di.sl<ApiService>();
         final authorization = idToken != null ? 'Bearer $idToken' : null;
-        final response = await apiService.completeProfile(request, authorization);
+        final response = await apiService.completeProfile(
+          request,
+          authorization,
+        );
 
         // Debug: Print response details
         print('');
@@ -181,8 +218,22 @@ class _CompleteRegistrationScreenState
             ),
           );
 
-          // Navigate to create store screen
-          AppRouter.pushNamedAndRemoveUntil(context, AppRouter.createStore);
+          // Navigate based on role
+          if (widget.role == 'owner') {
+            print(
+              '👤 Owner registration complete - Navigating to owner access screen',
+            );
+            AppRouter.pushNamedAndRemoveUntil(context, AppRouter.ownerAccess);
+          } else if (widget.role == 'worker') {
+            print(
+              '👤 Worker registration complete - Navigating to home screen',
+            );
+            AppRouter.pushNamedAndRemoveUntil(context, AppRouter.home);
+          } else {
+            // Fallback (should not happen, but for safety)
+            print('⚠️ Unknown role - Navigating to home screen');
+            AppRouter.pushNamedAndRemoveUntil(context, AppRouter.home);
+          }
         }
       } catch (e) {
         print('');
@@ -246,14 +297,19 @@ class _CompleteRegistrationScreenState
             if (responseData is Map && responseData.containsKey('error')) {
               final serverError = responseData['error'];
               errorMessage = 'خطأ من الخادم: $serverError';
-              
+
               // Specific handling for common errors
-              if (serverError.toString().toLowerCase().contains('invalid client')) {
+              if (serverError.toString().toLowerCase().contains(
+                'invalid client',
+              )) {
                 errorMessage = 'معرف العميل غير صحيح. يرجى التحقق من الإعدادات';
-              } else if (serverError.toString().toLowerCase().contains('unauthorized')) {
+              } else if (serverError.toString().toLowerCase().contains(
+                'unauthorized',
+              )) {
                 errorMessage = 'غير مصرح. يرجى التحقق من بيانات الاعتماد';
               }
-            } else if (responseData is Map && responseData.containsKey('message')) {
+            } else if (responseData is Map &&
+                responseData.containsKey('message')) {
               errorMessage = 'خطأ: ${responseData['message']}';
             }
           } else {
