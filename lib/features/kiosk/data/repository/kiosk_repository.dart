@@ -4,9 +4,11 @@ import '../../../../core/errors/exceptions.dart';
 import '../../../../core/network/network_info.dart';
 import '../datasources/kiosk_remote_data_source.dart';
 import '../models/create_kiosk_request_model.dart';
+import '../models/market_model.dart';
 
 abstract class KioskRepository {
-  Future<Either<Failure, void>> createKiosk(CreateKioskRequestModel request);
+  Future<Either<Failure, void>> createKiosk(CreateKioskRequestModel request, String authorization);
+  Future<Either<Failure, List<MarketModel>>> getOwnerMarkets(String authorization);
 }
 
 class KioskRepositoryImpl implements KioskRepository {
@@ -21,11 +23,32 @@ class KioskRepositoryImpl implements KioskRepository {
   @override
   Future<Either<Failure, void>> createKiosk(
     CreateKioskRequestModel request,
+    String authorization,
   ) async {
     if (await networkInfo.isConnected) {
       try {
-        await remoteDataSource.createKiosk(request);
+        await remoteDataSource.createKiosk(request, authorization);
         return const Right(null);
+      } on ServerException catch (e) {
+        return Left(ServerFailure(e.message));
+      } on NetworkException catch (e) {
+        return Left(NetworkFailure(e.message));
+      } catch (e) {
+        return Left(ServerFailure('Unexpected error: ${e.toString()}'));
+      }
+    } else {
+      return const Left(NetworkFailure('No internet connection'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<MarketModel>>> getOwnerMarkets(
+    String authorization,
+  ) async {
+    if (await networkInfo.isConnected) {
+      try {
+        final markets = await remoteDataSource.getOwnerMarkets(authorization);
+        return Right(markets);
       } on ServerException catch (e) {
         return Left(ServerFailure(e.message));
       } on NetworkException catch (e) {

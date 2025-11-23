@@ -7,7 +7,13 @@ class CreateKioskRequestModel extends Equatable {
   const CreateKioskRequestModel({required this.market});
 
   Map<String, dynamic> toJson() {
-    return {'market': market.toJson()};
+    return {
+      'market': {
+        'name': market.name,
+        'kind': market.kind,
+        'location': market.location,
+      }
+    };
   }
 
   @override

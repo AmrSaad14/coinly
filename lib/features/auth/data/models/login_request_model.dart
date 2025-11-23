@@ -31,3 +31,4 @@ class LoginRequestModel {
 
   Map<String, dynamic> toJson() => _$LoginRequestModelToJson(this);
 }
+

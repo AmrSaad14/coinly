@@ -10,6 +10,7 @@ import '../utils/constants.dart';
 import '../../features/kiosk/data/datasources/kiosk_remote_data_source.dart';
 import '../../features/kiosk/data/repository/kiosk_repository.dart';
 import '../../features/kiosk/logic/create_kiosk_cubit.dart';
+import '../../features/kiosk/logic/markets_cubit.dart';
 
 final sl = GetIt.instance;
 
@@ -45,7 +46,7 @@ Future<void> init() async {
   //! Features - Kiosk
   // Data - Register data sources first
   sl.registerLazySingleton<KioskRemoteDataSource>(
-    () => KioskRemoteDataSourceImpl(dio: sl()),
+    () => KioskRemoteDataSourceImpl(dio: sl(), apiService: sl<ApiService>()),
   );
 
   // Data - Register repositories second
@@ -58,6 +59,12 @@ Future<void> init() async {
 
   // Logic - Register cubits last (they depend on repositories)
   sl.registerFactory(
-    () => CreateKioskCubit(repository: sl<KioskRepository>()),
+    () => CreateKioskCubit(
+      repository: sl<KioskRepository>(),
+      sharedPreferences: sl<SharedPreferences>(),
+    ),
+  );
+  sl.registerFactory(
+    () => MarketsCubit(repository: sl<KioskRepository>()),
   );
 }

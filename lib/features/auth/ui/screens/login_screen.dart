@@ -116,17 +116,259 @@ class _LoginScreenState extends State<LoginScreen> {
 
       // Call login API
       final apiService = di.sl<ApiService>();
+      final dio = di.sl<Dio>();
       print('🔵 Calling login API...');
+
+      // Get raw response to see all data
+      Response<dynamic>? rawResponse;
+      try {
+        rawResponse = await dio.post<dynamic>(
+          '/oauth/token',
+          data: loginRequest.toJson(),
+        );
+
+        print('═══════════════════════════════════════════════════════');
+        print('📦 RAW LOGIN API RESPONSE');
+        print('═══════════════════════════════════════════════════════');
+        print('   Status Code: ${rawResponse.statusCode}');
+        print('   Status Message: ${rawResponse.statusMessage}');
+        print('   Headers: ${rawResponse.headers.map}');
+        print('   Data Type: ${rawResponse.data.runtimeType}');
+        print('   ───────────────────────────────────────────────────');
+
+        if (rawResponse.data is Map) {
+          final dataMap = rawResponse.data as Map;
+          print('   📋 ALL RESPONSE FIELDS:');
+          print('   ───────────────────────────────────────────────────');
+          dataMap.forEach((key, value) {
+            if (value is Map) {
+              print('   • $key: [Map with ${value.length} keys]');
+              print('      Keys: ${value.keys.toList()}');
+              value.forEach((subKey, subValue) {
+                final subValueStr = subValue?.toString() ?? 'null';
+                final preview = subValueStr.length > 50
+                    ? '${subValueStr.substring(0, 50)}...'
+                    : subValueStr;
+                print('      - $subKey: $preview (${subValue.runtimeType})');
+              });
+            } else {
+              final valueStr = value?.toString() ?? 'null';
+              final preview = valueStr.length > 50
+                  ? '${valueStr.substring(0, 50)}...'
+                  : valueStr;
+              print('   • $key: $preview (${value.runtimeType})');
+            }
+          });
+          print('   ───────────────────────────────────────────────────');
+          print('   Total fields: ${dataMap.length}');
+          print('   Field names: ${dataMap.keys.toList()}');
+        } else if (rawResponse.data is List) {
+          print('   ⚠️ Response is a List, not a Map');
+          print('   Data: ${rawResponse.data}');
+        } else {
+          print('   ⚠️ Response is neither Map nor List');
+          print('   Data: ${rawResponse.data}');
+        }
+        print('═══════════════════════════════════════════════════════');
+      } catch (e) {
+        print('❌ Failed to get raw response: $e');
+        if (e is DioException && e.response != null) {
+          print('   Error Status: ${e.response?.statusCode}');
+          print('   Error Data: ${e.response?.data}');
+          
+          // Handle 403 error - navigate to owner access screen
+          if (e.response?.statusCode == 403) {
+            if (mounted) {
+              AppRouter.pushNamed(context, AppRouter.ownerAccess);
+            }
+            setState(() {
+              _isLoading = false;
+            });
+            return; // Exit early, don't continue with login
+          }
+        }
+        // Continue - let outer catch block handle other errors
+      }
+
+      // Parse response with API service
+      print('🔵 Parsing response with API service...');
       final response = await apiService.login(loginRequest);
-      print('✅ Login successful!');
-      print(
-        '   Access Token: ${response.accessToken?.substring(0, 20) ?? 'null'}...',
-      );
+
+      print('═══════════════════════════════════════════════════════');
+      print('📋 PARSED LOGIN RESPONSE MODEL');
+      print('═══════════════════════════════════════════════════════');
+      print('   Access Token: ${response.accessToken ?? 'null'}');
+      if (response.accessToken != null) {
+        print('   Access Token Length: ${response.accessToken!.length}');
+        print(
+          '   Access Token Preview: ${response.accessToken!.substring(0, response.accessToken!.length > 30 ? 30 : response.accessToken!.length)}...',
+        );
+      }
+      print('   Token Type: ${response.tokenType ?? 'null'}');
+      print('   Expires In: ${response.expiresIn ?? 'null'}');
+      print('   Refresh Token: ${response.refreshToken ?? 'null'}');
+      if (response.refreshToken != null) {
+        print('   Refresh Token Length: ${response.refreshToken!.length}');
+      }
+      print('   Scope: ${response.scope ?? 'null'}');
+      print('   ───────────────────────────────────────────────────');
+      print('   Full JSON: ${response.toJson()}');
+      print('═══════════════════════════════════════════════════════');
+
+      // Compare raw vs parsed and check for user data
+      if (rawResponse?.data is Map) {
+        final rawMap = rawResponse!.data as Map;
+        print('═══════════════════════════════════════════════════════');
+        print('🔍 COMPARING RAW vs PARSED:');
+        print('═══════════════════════════════════════════════════════');
+        print('   Raw has access_token: ${rawMap.containsKey('access_token')}');
+        print('   Raw access_token value: ${rawMap['access_token']}');
+        print('   Parsed accessToken: ${response.accessToken}');
+        print('   Match: ${rawMap['access_token'] == response.accessToken}');
+        print('   ───────────────────────────────────────────────────');
+
+        // Check for user-related fields
+        print('   👤 CHECKING FOR USER DATA FIELDS:');
+        final userFields = [
+          'user',
+          'user_data',
+          'userData',
+          'profile',
+          'user_info',
+          'userInfo',
+          'account',
+          'data',
+        ];
+        bool foundUserData = false;
+        for (var field in userFields) {
+          if (rawMap.containsKey(field)) {
+            foundUserData = true;
+            print('   ✅ Found field: $field');
+            print('      Type: ${rawMap[field].runtimeType}');
+            if (rawMap[field] is Map) {
+              final userMap = rawMap[field] as Map;
+              print('      User data fields: ${userMap.keys.toList()}');
+              userMap.forEach((key, value) {
+                print('         • $key: $value');
+              });
+            } else {
+              print('      Value: ${rawMap[field]}');
+            }
+          }
+        }
+        if (!foundUserData) {
+          print('   ⚠️ No user data fields found in response');
+        }
+
+        // List all fields that aren't in the model
+        print('   ───────────────────────────────────────────────────');
+        print('   📊 FIELDS NOT IN MODEL:');
+        final modelFields = [
+          'access_token',
+          'token_type',
+          'expires_in',
+          'refresh_token',
+          'scope',
+        ];
+        final extraFields = rawMap.keys
+            .where((key) => !modelFields.contains(key.toString()))
+            .toList();
+        if (extraFields.isNotEmpty) {
+          for (var field in extraFields) {
+            print(
+              '   • $field: ${rawMap[field]} (${rawMap[field].runtimeType})',
+            );
+          }
+        } else {
+          print('   ✅ All fields are in the model');
+        }
+        print('═══════════════════════════════════════════════════════');
+      }
+
+      // Extract token from raw response if parsed response has null
+      String? accessToken = response.accessToken;
+
+      if ((accessToken == null || accessToken.isEmpty) &&
+          rawResponse?.data is Map) {
+        final rawMap = rawResponse!.data as Map;
+        print('⚠️ Parsed token is null, extracting from raw response...');
+
+        // Try top-level fields first
+        accessToken =
+            rawMap['access_token'] as String? ??
+            rawMap['accessToken'] as String? ??
+            rawMap['token'] as String? ??
+            rawMap['auth_token'] as String?;
+
+        // If not found, check inside 'user' object
+        if ((accessToken == null || accessToken.isEmpty) &&
+            rawMap['user'] is Map) {
+          final userMap = rawMap['user'] as Map;
+          print('   Checking inside "user" object...');
+          print('   User keys: ${userMap.keys.toList()}');
+          accessToken =
+              userMap['access_token'] as String? ??
+              userMap['accessToken'] as String? ??
+              userMap['token'] as String? ??
+              userMap['auth_token'] as String?;
+        }
+
+        // If still not found, check inside 'meta' object
+        if ((accessToken == null || accessToken.isEmpty) &&
+            rawMap['meta'] is Map) {
+          final metaMap = rawMap['meta'] as Map;
+          print('   Checking inside "meta" object...');
+          print('   Meta keys: ${metaMap.keys.toList()}');
+          accessToken =
+              metaMap['access_token'] as String? ??
+              metaMap['accessToken'] as String? ??
+              metaMap['token'] as String? ??
+              metaMap['auth_token'] as String?;
+        }
+
+        if (accessToken != null && accessToken.isNotEmpty) {
+          print(
+            '✅ Found token in raw response: ${accessToken.substring(0, accessToken.length > 30 ? 30 : accessToken.length)}...',
+          );
+        } else {
+          print('❌ Token not found in raw response');
+          print('   Available top-level keys: ${rawMap.keys.toList()}');
+          if (rawMap['user'] is Map) {
+            print(
+              '   User object keys: ${(rawMap['user'] as Map).keys.toList()}',
+            );
+          }
+          if (rawMap['meta'] is Map) {
+            print(
+              '   Meta object keys: ${(rawMap['meta'] as Map).keys.toList()}',
+            );
+          }
+        }
+      }
 
       // Store access token
-      if (response.accessToken != null) {
-        final prefs = di.sl<SharedPreferences>();
-        await prefs.setString(AppConstants.accessToken, response.accessToken!);
+      final prefs = di.sl<SharedPreferences>();
+      if (accessToken != null && accessToken.isNotEmpty) {
+        await prefs.setString(AppConstants.accessToken, accessToken);
+        print('✅ Access token saved to SharedPreferences');
+        print(
+          '   Token source: ${response.accessToken != null ? 'parsed' : 'raw response'}',
+        );
+
+        // Verify storage
+        final savedToken = prefs.getString(AppConstants.accessToken);
+        print('   Saved token length: ${savedToken?.length ?? 0}');
+        print('   Token match: ${savedToken == accessToken}');
+      } else {
+        print('❌ ERROR: Access token is null or empty!');
+        print('   Parsed token: ${response.accessToken}');
+        if (rawResponse?.data is Map) {
+          final rawMap = rawResponse!.data as Map;
+          print('   Raw response keys: ${rawMap.keys.toList()}');
+          print('   Raw access_token: ${rawMap['access_token']}');
+        }
+        print('   Cannot save token to SharedPreferences');
+        throw Exception('Access token not received from server');
       }
 
       // Navigate to home screen
@@ -175,7 +417,11 @@ class _LoginScreenState extends State<LoginScreen> {
                   errorMessage = 'طلب غير صحيح. تحقق من البيانات المدخلة';
                 }
               } else if (statusCode == 403) {
-                errorMessage = 'ليس لديك صلاحية للوصول';
+                // Navigate to owner access screen on 403 error
+                if (mounted) {
+                  AppRouter.pushNamed(context, AppRouter.ownerAccess);
+                }
+                return; // Exit early, don't show error message
               } else if (statusCode == 404) {
                 errorMessage = 'نقطة الاتصال غير موجودة';
               } else if (statusCode == 500) {
