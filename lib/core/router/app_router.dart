@@ -1,3 +1,4 @@
+import 'package:coinly/features/home/ui/screens/kiosk_transactions_screen.dart';
 import 'package:coinly/features/home/ui/screens/notifications_screen.dart';
 import 'package:coinly/features/home/ui/screens/manage_kiosk.dart';
 import 'package:coinly/features/add/ui/screens/add_worker_screen.dart';
@@ -31,7 +32,7 @@ class AppRouter {
   static const String manageKiosk = '/manage-kiosk';
   static const String addWorker = '/add-worker';
   static const String addWorkerInfo = '/add-worker-info';
-
+  static const String kioskTransactions = '/kiosk-transactions';
   // Route generator
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -113,9 +114,8 @@ class AppRouter {
       case manageKiosk:
         final args = settings.arguments as Map<String, dynamic>?;
         return MaterialPageRoute(
-          builder: (_) => ManageKioskScreen(
-            marketId: args?['marketId'] as int?,
-          ),
+          builder: (_) =>
+              ManageKioskScreen(marketId: args?['marketId'] as int?),
           settings: settings,
         );
 
@@ -128,6 +128,11 @@ class AppRouter {
       case addWorkerInfo:
         return MaterialPageRoute(
           builder: (_) => const AddWorkerInfoScreen(),
+          settings: settings,
+        );
+      case kioskTransactions:
+        return MaterialPageRoute(
+          builder: (_) => const KioskTransactionsScreen(),
           settings: settings,
         );
 

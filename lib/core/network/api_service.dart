@@ -7,6 +7,7 @@ import '../../features/auth/data/models/login_request_model.dart';
 import '../../features/auth/data/models/login_response_model.dart';
 import '../../features/kiosk/data/models/markets_response_model.dart';
 import '../../features/kiosk/data/models/market_model.dart';
+import '../../features/home/data/models/owner_response_model.dart';
 
 part 'api_service.g.dart';
 
@@ -50,6 +51,11 @@ abstract class ApiService {
   @POST('/logout')
   @DioResponseType(ResponseType.json)
   Future<Response> logout(
+    @Header('Authorization') String authorization,
+  );
+
+  @GET('/api/v1/owner/me')
+  Future<OwnerResponseModel> getOwnerMe(
     @Header('Authorization') String authorization,
   );
 }

@@ -4,12 +4,15 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../core/di/injection_container.dart' as di;
 import '../../../../core/utils/constants.dart';
+import '../../data/models/owner_data_model.dart';
 import '../../../kiosk/logic/markets_cubit.dart';
 import '../../../kiosk/logic/markets_state.dart';
 import 'kiosk_card.dart';
 
 class MyKiosksSection extends StatefulWidget {
-  const MyKiosksSection({super.key});
+  final OwnerDataModel? ownerData;
+
+  const MyKiosksSection({super.key, this.ownerData});
 
   @override
   State<MyKiosksSection> createState() => _MyKiosksSectionState();
@@ -54,6 +57,31 @@ class _MyKiosksSectionState extends State<MyKiosksSection> {
 
   @override
   Widget build(BuildContext context) {
+    // If ownerData is provided and has markets, use them directly
+    if (widget.ownerData != null && widget.ownerData!.markets.isNotEmpty) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          const Padding(
+            padding: EdgeInsets.only(right: 4, bottom: 12, top: 12),
+            child: Text(
+              'الأكشاك الخاصة بي',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: Colors.black87,
+              ),
+            ),
+          ),
+          SizedBox(
+            height: 190.h,
+            child: _buildMarketsFromOwnerData(),
+          ),
+        ],
+      );
+    }
+
+    // Otherwise, use the existing API call approach
     return BlocProvider.value(
       value: _marketsCubit,
       child: BlocBuilder<MarketsCubit, MarketsState>(
@@ -82,6 +110,39 @@ class _MyKiosksSectionState extends State<MyKiosksSection> {
           );
         },
       ),
+    );
+  }
+
+  Widget _buildMarketsFromOwnerData() {
+    if (widget.ownerData == null || widget.ownerData!.markets.isEmpty) {
+      return const Center(
+        child: Text(
+          'لا توجد أكشاك متاحة',
+          style: TextStyle(color: Colors.grey),
+        ),
+      );
+    }
+
+    return ListView.builder(
+      scrollDirection: Axis.horizontal,
+      reverse: true, // RTL support
+      itemCount: widget.ownerData!.markets.length,
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      itemBuilder: (context, index) {
+        final market = widget.ownerData!.markets[index];
+        return Padding(
+          padding: const EdgeInsets.only(left: 12),
+          child: SizedBox(
+            width: 350,
+            child: KioskCard(
+              name: market.name,
+              balance: '${market.marketPoints} ج.م',
+              debt: '${market.marketLoans} ج.م',
+              marketId: market.id,
+            ),
+          ),
+        );
+      },
     );
   }
 

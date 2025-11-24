@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import '../../data/models/owner_data_model.dart';
 import 'stat_circle.dart';
 
 class BalanceSummaryCard extends StatelessWidget {
-  const BalanceSummaryCard({super.key});
+  final OwnerDataModel? ownerData;
+
+  const BalanceSummaryCard({super.key, this.ownerData});
 
   @override
   Widget build(BuildContext context) {
@@ -35,23 +38,23 @@ class BalanceSummaryCard extends StatelessWidget {
           const SizedBox(height: 20),
 
           // Three Stat Circles
-          const Row(
+          Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               StatCircle(
                 icon: Icons.money_off_outlined,
                 label: 'الديون',
-                value: '25 نقطة',
+                value: '${ownerData?.loans ?? 0} نقطة',
               ),
               StatCircle(
                 icon: Icons.show_chart,
                 label: 'الإيرادات',
-                value: '253 نقطة',
+                value: '${ownerData?.profits ?? 0} نقطة',
               ),
               StatCircle(
                 icon: Icons.people_alt_outlined,
-                label: 'الايرادات',
-                value: '253 عامل',
+                label: 'العمال',
+                value: '${ownerData?.workersCount ?? 0} عامل',
               ),
             ],
           ),

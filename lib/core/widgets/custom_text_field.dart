@@ -19,6 +19,8 @@ class CustomTextField extends StatefulWidget {
     this.enabled = true,
     this.showVisibilityToggle = false,
     this.visibilityToggleOnPrefix = false,
+    this.readOnly = false,
+    this.onTap,
   });
 
   final TextEditingController controller;
@@ -35,6 +37,8 @@ class CustomTextField extends StatefulWidget {
   final bool enabled;
   final bool showVisibilityToggle;
   final bool visibilityToggleOnPrefix;
+  final bool readOnly;
+  final VoidCallback? onTap;
 
   @override
   State<CustomTextField> createState() => _CustomTextFieldState();
@@ -69,6 +73,8 @@ class _CustomTextFieldState extends State<CustomTextField> {
           ? _obscureText
           : widget.obscureText,
       enabled: widget.enabled,
+      readOnly: widget.readOnly,
+      onTap: widget.onTap,
       decoration: InputDecoration(
         hintText: widget.hint,
         hintTextDirection: TextDirection.rtl,

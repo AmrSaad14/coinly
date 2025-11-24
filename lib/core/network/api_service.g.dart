@@ -43,17 +43,12 @@ class _ApiService implements ApiService {
           baseUrl,
         )));
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late VerifyUserResponseModel _value;
-    try {
-      _value = VerifyUserResponseModel.fromJson(_result.data!);
-    } on Object {
-      rethrow;
-    }
+    final _value = VerifyUserResponseModel.fromJson(_result.data!);
     return _value;
   }
 
   @override
-  Future<Response> completeProfile(
+  Future<Response<dynamic>> completeProfile(
     CompleteProfileRequestModel request,
     String? authorization,
   ) async {
@@ -81,7 +76,7 @@ class _ApiService implements ApiService {
           _dio.options.baseUrl,
           baseUrl,
         )));
-    final _result = await _dio.fetch(_options);
+    final _result = await _dio.fetch<dynamic>(_options);
     return _result;
   }
 
@@ -109,12 +104,7 @@ class _ApiService implements ApiService {
           baseUrl,
         )));
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late LoginResponseModel _value;
-    try {
-      _value = LoginResponseModel.fromJson(_result.data!);
-    } on Object {
-      rethrow;
-    }
+    final _value = LoginResponseModel.fromJson(_result.data!);
     return _value;
   }
 
@@ -142,12 +132,7 @@ class _ApiService implements ApiService {
           baseUrl,
         )));
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late MarketsResponseModel _value;
-    try {
-      _value = MarketsResponseModel.fromJson(_result.data!);
-    } on Object {
-      rethrow;
-    }
+    final _value = MarketsResponseModel.fromJson(_result.data!);
     return _value;
   }
 
@@ -178,28 +163,12 @@ class _ApiService implements ApiService {
           baseUrl,
         )));
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    print('📥 Raw API response: ${_result.data}');
-    late MarketModel _value;
-    try {
-      // Extract data from response wrapper
-      final responseData = _result.data;
-      if (responseData != null && responseData.containsKey('data')) {
-        _value = MarketModel.fromJson(responseData['data'] as Map<String, dynamic>);
-      } else {
-        // Fallback: try to parse directly if no wrapper
-        _value = MarketModel.fromJson(responseData as Map<String, dynamic>);
-      }
-    } on Object catch (e, s) {
-      print('❌ Error parsing MarketModel: $e');
-      print('❌ Response data: ${_result.data}');
-      print('❌ Stack trace: $s');
-      rethrow;
-    }
+    final _value = MarketModel.fromJson(_result.data!);
     return _value;
   }
 
   @override
-  Future<Response> createMarket(
+  Future<Response<dynamic>> createMarket(
     Map<String, dynamic> request,
     String authorization,
   ) async {
@@ -226,12 +195,12 @@ class _ApiService implements ApiService {
           _dio.options.baseUrl,
           baseUrl,
         )));
-    final _result = await _dio.fetch(_options);
+    final _result = await _dio.fetch<dynamic>(_options);
     return _result;
   }
 
   @override
-  Future<Response> logout(String authorization) async {
+  Future<Response<dynamic>> logout(String authorization) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{r'Authorization': authorization};
@@ -254,8 +223,36 @@ class _ApiService implements ApiService {
           _dio.options.baseUrl,
           baseUrl,
         )));
-    final _result = await _dio.fetch(_options);
+    final _result = await _dio.fetch<dynamic>(_options);
     return _result;
+  }
+
+  @override
+  Future<OwnerResponseModel> getOwnerMe(String authorization) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{r'Authorization': authorization};
+    _headers.removeWhere((k, v) => v == null);
+    const Map<String, dynamic>? _data = null;
+    final _options = _setStreamType<OwnerResponseModel>(Options(
+      method: 'GET',
+      headers: _headers,
+      extra: _extra,
+    )
+        .compose(
+          _dio.options,
+          '/api/v1/owner/me',
+          queryParameters: queryParameters,
+          data: _data,
+        )
+        .copyWith(
+            baseUrl: _combineBaseUrls(
+          _dio.options.baseUrl,
+          baseUrl,
+        )));
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    final _value = OwnerResponseModel.fromJson(_result.data!);
+    return _value;
   }
 
   RequestOptions _setStreamType<T>(RequestOptions requestOptions) {

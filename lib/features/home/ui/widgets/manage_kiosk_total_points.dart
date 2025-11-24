@@ -1,3 +1,4 @@
+import 'package:coinly/core/router/app_router.dart';
 import 'package:coinly/core/theme/app_colors.dart';
 import 'package:coinly/core/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
@@ -78,7 +79,9 @@ class ManageKioskTotalPoints extends StatelessWidget {
             // View Transactions Button
             CustomButton(
               width: double.infinity,
-              onTap: () {},
+              onTap: () {
+                AppRouter.pushNamed(context, AppRouter.kioskTransactions);
+              },
               text: 'عرض المعاملات',
             ),
           ],

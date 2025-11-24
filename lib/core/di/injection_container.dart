@@ -13,6 +13,11 @@ import '../../features/kiosk/logic/create_kiosk_cubit.dart';
 import '../../features/kiosk/logic/markets_cubit.dart';
 import '../../features/kiosk/logic/market_cubit.dart';
 
+// Features - Home
+import '../../features/home/data/datasources/home_remote_data_source.dart';
+import '../../features/home/data/repository/home_repository.dart';
+import '../../features/home/logic/home_cubit.dart';
+
 final sl = GetIt.instance;
 
 Future<void> init() async {
@@ -70,5 +75,24 @@ Future<void> init() async {
   );
   sl.registerFactory(
     () => MarketCubit(repository: sl<KioskRepository>()),
+  );
+
+  //! Features - Home
+  // Data - Register data sources first
+  sl.registerLazySingleton<HomeRemoteDataSource>(
+    () => HomeRemoteDataSourceImpl(dio: sl(), apiService: sl<ApiService>()),
+  );
+
+  // Data - Register repositories second
+  sl.registerLazySingleton<HomeRepository>(
+    () => HomeRepositoryImpl(
+      remoteDataSource: sl(),
+      networkInfo: sl(),
+    ),
+  );
+
+  // Logic - Register cubits last (they depend on repositories)
+  sl.registerFactory(
+    () => HomeCubit(repository: sl<HomeRepository>()),
   );
 }

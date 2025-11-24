@@ -1,10 +1,13 @@
 import 'package:coinly/core/router/app_router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import '../../data/models/owner_data_model.dart';
 import 'balance_summary_card.dart';
 
 class HomeHeader extends StatelessWidget {
-  const HomeHeader({super.key});
+  final OwnerDataModel? ownerData;
+
+  const HomeHeader({super.key, this.ownerData});
 
   @override
   Widget build(BuildContext context) {
@@ -73,7 +76,9 @@ class HomeHeader extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Text(
-                        'مرحباً، أحمد',
+                        ownerData != null
+                            ? 'مرحباً، ${ownerData!.fullName}'
+                            : 'مرحباً',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 18.sp,
@@ -118,11 +123,11 @@ class HomeHeader extends StatelessWidget {
               ),
             ),
           ),
-          const Positioned(
+          Positioned(
             top: 150,
             left: 10,
             right: 10,
-            child: BalanceSummaryCard(),
+            child: BalanceSummaryCard(ownerData: ownerData),
           ),
         ],
       ),
