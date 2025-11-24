@@ -30,3 +30,4 @@ class MarketError extends MarketState {
   List<Object> get props => [message];
 }
 
+
