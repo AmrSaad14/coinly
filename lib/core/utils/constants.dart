@@ -26,5 +26,5 @@ class AppConstants {
   static const String accessToken = 'ACCESS_TOKEN';
 
   // App
-  static const String appName = 'Coinly';
+  static const String appName = 'Grow';
 }
