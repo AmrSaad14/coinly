@@ -35,6 +35,10 @@ class _LoginScreenState extends State<LoginScreen> {
             SnackBar(
               content: Text(state.errorMessage!),
               backgroundColor: Colors.red,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
             ),
           );
           context.read<LoginCubit>().clearError();

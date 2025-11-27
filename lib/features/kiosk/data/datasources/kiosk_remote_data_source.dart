@@ -5,6 +5,7 @@ import '../models/market_details_model.dart';
 import '../../../../core/errors/exceptions.dart';
 import '../../../../core/network/api_service.dart';
 import '../../../../core/utils/constants.dart';
+import '../../../../core/utils/message_extractor.dart';
 
 abstract class KioskRemoteDataSource {
   Future<void> createKiosk(
@@ -53,7 +54,9 @@ class KioskRemoteDataSourceImpl implements KioskRemoteDataSource {
       print('✅ Response data: ${response.data}');
 
       if (response.statusCode != 200 && response.statusCode != 201) {
-        throw ServerException('Failed to create kiosk: ${response.statusCode}');
+        final errorMessage =
+            MessageExtractor.extractErrorMessage(response.data);
+        throw ServerException(errorMessage);
       }
     } on DioException catch (e) {
       print('❌ DioException: ${e.type}');
@@ -71,12 +74,10 @@ class KioskRemoteDataSourceImpl implements KioskRemoteDataSource {
           'Unable to connect to server. Please check if the API URL is correct and your internet connection.',
         );
       } else if (e.type == DioExceptionType.badResponse) {
-        final statusCode = e.response?.statusCode;
-        final errorMessage =
-            e.response?.data?['message']?.toString() ??
-            e.response?.data?['error']?.toString() ??
-            'Server error occurred';
-        throw ServerException('Server error (${statusCode}): $errorMessage');
+        final errorMessage = MessageExtractor.extractErrorFromDioException(
+          e.response?.data,
+        );
+        throw ServerException(errorMessage);
       } else if (e.type == DioExceptionType.unknown) {
         throw NetworkException(
           'Network error: ${e.message ?? "Unable to reach server. Please check your internet connection."}',
@@ -128,12 +129,10 @@ class KioskRemoteDataSourceImpl implements KioskRemoteDataSource {
           'Unable to connect to server. Please check if the API URL is correct and your internet connection.',
         );
       } else if (e.type == DioExceptionType.badResponse) {
-        final statusCode = e.response?.statusCode;
-        final errorMessage =
-            e.response?.data?['message']?.toString() ??
-            e.response?.data?['error']?.toString() ??
-            'Server error occurred';
-        throw ServerException('Server error (${statusCode}): $errorMessage');
+        final errorMessage = MessageExtractor.extractErrorFromDioException(
+          e.response?.data,
+        );
+        throw ServerException(errorMessage);
       } else if (e.type == DioExceptionType.unknown) {
         // Check if there's an underlying error
         final error = e.error;
@@ -231,12 +230,10 @@ class KioskRemoteDataSourceImpl implements KioskRemoteDataSource {
           'Unable to connect to server. Please check if the API URL is correct and your internet connection.',
         );
       } else if (e.type == DioExceptionType.badResponse) {
-        final statusCode = e.response?.statusCode;
-        final errorMessage =
-            e.response?.data?['message']?.toString() ??
-            e.response?.data?['error']?.toString() ??
-            'Server error occurred';
-        throw ServerException('Server error (${statusCode}): $errorMessage');
+        final errorMessage = MessageExtractor.extractErrorFromDioException(
+          e.response?.data,
+        );
+        throw ServerException(errorMessage);
       } else if (e.type == DioExceptionType.unknown) {
         final error = e.error;
         print('❌ Underlying error: $error');
@@ -309,9 +306,9 @@ class KioskRemoteDataSourceImpl implements KioskRemoteDataSource {
       print('✅ Delete response data: ${response.data}');
 
       if (response.statusCode != 200 && response.statusCode != 204) {
-        throw ServerException(
-          'Failed to delete kiosk: ${response.statusCode}',
-        );
+        final errorMessage =
+            MessageExtractor.extractErrorMessage(response.data);
+        throw ServerException(errorMessage);
       }
     } on DioException catch (e) {
       print('❌ DioException while deleting market: ${e.type}');
@@ -329,12 +326,10 @@ class KioskRemoteDataSourceImpl implements KioskRemoteDataSource {
           'Unable to connect to server. Please check if the API URL is correct and your internet connection.',
         );
       } else if (e.type == DioExceptionType.badResponse) {
-        final statusCode = e.response?.statusCode;
-        final errorMessage =
-            e.response?.data?['message']?.toString() ??
-            e.response?.data?['error']?.toString() ??
-            'Server error occurred';
-        throw ServerException('Server error (${statusCode}): $errorMessage');
+        final errorMessage = MessageExtractor.extractErrorFromDioException(
+          e.response?.data,
+        );
+        throw ServerException(errorMessage);
       } else if (e.type == DioExceptionType.unknown) {
         throw NetworkException(
           'Network error: ${e.message ?? "Unable to reach server. Please check your internet connection."}',

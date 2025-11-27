@@ -8,6 +8,7 @@ import '../../features/auth/data/models/login_response_model.dart';
 import '../../features/kiosk/data/models/markets_response_model.dart';
 import '../../features/kiosk/data/models/market_details_model.dart';
 import '../../features/home/data/models/owner_response_model.dart';
+import '../../features/home/data/models/notifications_response_model.dart';
 import '../../features/withdraw/data/models/withdrawal_request_model.dart';
 import '../../features/withdraw/data/models/transaction_request_model.dart';
 
@@ -60,6 +61,17 @@ abstract class ApiService {
 
   @GET('/api/v1/owner/me')
   Future<OwnerResponseModel> getOwnerMe(
+    @Header('Authorization') String authorization,
+  );
+
+  @GET('/api/v1/notifications')
+  Future<NotificationsResponseModel> getNotifications(
+    @Header('Authorization') String authorization,
+  );
+
+  @POST('/api/v1/notifications/mark_all_read')
+  @DioResponseType(ResponseType.json)
+  Future<Response<dynamic>> markAllNotificationsRead(
     @Header('Authorization') String authorization,
   );
 

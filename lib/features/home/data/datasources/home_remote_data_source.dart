@@ -3,6 +3,7 @@ import '../models/owner_data_model.dart';
 import '../../../../core/errors/exceptions.dart';
 import '../../../../core/network/api_service.dart';
 import '../../../../core/utils/constants.dart';
+import '../../../../core/utils/message_extractor.dart';
 
 abstract class HomeRemoteDataSource {
   Future<OwnerDataModel> getOwnerMe(String authorization);
@@ -48,12 +49,10 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
           'Unable to connect to server. Please check if the API URL is correct and your internet connection.',
         );
       } else if (e.type == DioExceptionType.badResponse) {
-        final statusCode = e.response?.statusCode;
-        final errorMessage =
-            e.response?.data?['message']?.toString() ??
-            e.response?.data?['error']?.toString() ??
-            'Server error occurred';
-        throw ServerException('Server error (${statusCode}): $errorMessage');
+        final errorMessage = MessageExtractor.extractErrorFromDioException(
+          e.response?.data,
+        );
+        throw ServerException(errorMessage);
       } else if (e.type == DioExceptionType.unknown) {
         final error = e.error;
         print('❌ Underlying error: $error');

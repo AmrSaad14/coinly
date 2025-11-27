@@ -16,7 +16,7 @@ TransactionRequestModel _$TransactionRequestModelFromJson(
 Map<String, dynamic> _$TransactionRequestModelToJson(
         TransactionRequestModel instance) =>
     <String, dynamic>{
-      'transaction': instance.transaction.toJson(),
+      'transaction': instance.transaction,
     };
 
 TransactionBody _$TransactionBodyFromJson(Map<String, dynamic> json) =>

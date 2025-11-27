@@ -2,6 +2,7 @@ import 'package:coinly/core/di/injection_container.dart' as di;
 import 'package:coinly/features/add/ui/screens/add_worker_info.dart';
 import 'package:coinly/features/add/ui/screens/add_worker_screen.dart';
 import 'package:coinly/features/auth/logic/cubit/cubit/login_cubit.dart';
+import 'package:coinly/features/home/logic/notifications_cubit.dart';
 import 'package:coinly/features/home/ui/screens/kiosk_transactions_screen.dart';
 import 'package:coinly/features/home/ui/screens/manage_kiosk.dart';
 import 'package:coinly/features/home/ui/screens/notifications_screen.dart';
@@ -147,7 +148,10 @@ class AppRouter {
 
       case notifications:
         return MaterialPageRoute(
-          builder: (_) => const NotificationsScreen(),
+          builder: (_) => BlocProvider(
+            create: (_) => di.sl<NotificationsCubit>(),
+            child: const NotificationsScreen(),
+          ),
           settings: settings,
         );
 

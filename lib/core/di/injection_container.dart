@@ -18,8 +18,11 @@ import '../../features/kiosk/logic/market_cubit.dart';
 
 // Features - Home
 import '../../features/home/data/datasources/home_remote_data_source.dart';
+import '../../features/home/data/datasources/notifications_remote_data_source.dart';
 import '../../features/home/data/repository/home_repository.dart';
+import '../../features/home/data/repository/notifications_repository.dart';
 import '../../features/home/logic/home_cubit.dart';
+import '../../features/home/logic/notifications_cubit.dart';
 
 // Features - Withdraw
 import '../../features/withdraw/data/datasources/withdraw_remote_data_source.dart';
@@ -113,6 +116,31 @@ Future<void> init() async {
     () => HomeCubit(
       repository: sl<HomeRepository>(),
       kioskRepository: sl<KioskRepository>(),
+      sharedPreferences: sl<SharedPreferences>(),
+    ),
+  );
+
+  // Notifications
+  // Data - Register data sources first
+  sl.registerLazySingleton<NotificationsRemoteDataSource>(
+    () => NotificationsRemoteDataSourceImpl(
+      dio: sl(),
+      apiService: sl<ApiService>(),
+    ),
+  );
+
+  // Data - Register repositories second
+  sl.registerLazySingleton<NotificationsRepository>(
+    () => NotificationsRepositoryImpl(
+      remoteDataSource: sl(),
+      networkInfo: sl(),
+    ),
+  );
+
+  // Logic - Register cubits last (they depend on repositories)
+  sl.registerFactory(
+    () => NotificationsCubit(
+      repository: sl<NotificationsRepository>(),
       sharedPreferences: sl<SharedPreferences>(),
     ),
   );

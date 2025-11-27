@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:coinly/core/network/api_service.dart';
 import 'package:coinly/core/utils/constants.dart';
+import 'package:coinly/core/utils/message_extractor.dart';
 import 'package:coinly/features/auth/data/models/login_request_model.dart';
 import 'package:coinly/features/auth/data/models/login_response_model.dart';
 
@@ -225,12 +226,37 @@ class LoginCubit extends Cubit<LoginState> {
     final statusCode = response?.statusCode;
     final data = response?.data;
 
+    // For OAuth2 errors, prioritize error_description
+    // Check directly for error_description first (before using MessageExtractor)
+    if (data is Map<String, dynamic> && data['error_description'] != null) {
+      final errorDescription = data['error_description'];
+      if (errorDescription is String && errorDescription.isNotEmpty) {
+        return errorDescription;
+      }
+    }
+
+    // Use MessageExtractor to get the error message from API response
+    final extractedMessage = MessageExtractor.extractErrorFromDioException(data);
+
+    // If we got a meaningful message from the API, use it
+    if (extractedMessage.isNotEmpty &&
+        extractedMessage != 'حدث خطأ غير متوقع') {
+      return extractedMessage;
+    }
+
+    // Fallback to status code specific messages if API didn't provide a message
     if (statusCode == 401) {
       return 'البريد الإلكتروني أو كلمة المرور غير صحيحة';
     }
 
     if (statusCode == 400) {
-      return _extractMessage(data) ?? 'طلب غير صحيح. تحقق من البيانات المدخلة';
+      // For 400 errors, check if it's an OAuth error with invalid_grant
+      if (data is Map<String, dynamic> && 
+          data['error'] == 'invalid_grant' &&
+          data['error_description'] == null) {
+        return 'البريد الإلكتروني أو كلمة المرور غير صحيحة';
+      }
+      return 'طلب غير صحيح. تحقق من البيانات المدخلة';
     }
 
     if (statusCode == 404) {
@@ -241,14 +267,8 @@ class LoginCubit extends Cubit<LoginState> {
       return 'خطأ في الخادم. حاول مرة أخرى لاحقاً';
     }
 
-    return _extractMessage(data) ?? 'حدث خطأ أثناء تسجيل الدخول';
-  }
-
-  String? _extractMessage(dynamic data) {
-    if (data is Map<String, dynamic>) {
-      return (data['message'] ?? data['error'] ?? data['error_description'])
-          ?.toString();
-    }
-    return null;
+    return extractedMessage.isNotEmpty
+        ? extractedMessage
+        : 'حدث خطأ أثناء تسجيل الدخول';
   }
 }

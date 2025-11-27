@@ -47,7 +47,7 @@ class ProfileMenuList extends StatelessWidget {
       children: [
         ProfileMenuItem(
           iconPath: 'assets/icons/profile.svg',
-          title: 'الملف الشخصي',
+          title: 'تغيير الملف الشخصي',
           onTap: () {
             // Navigate to personal profile
           },
@@ -66,14 +66,6 @@ class ProfileMenuList extends StatelessWidget {
           title: 'سياسة الخصوصية',
           onTap: () {
             // Navigate to privacy policy
-          },
-        ),
-        const Divider(height: 1),
-        ProfileMenuItem(
-          iconPath: 'assets/icons/replace.svg',
-          title: 'تبديل لحساب الموظف',
-          onTap: () {
-            // Switch to employee account
           },
         ),
         const Divider(height: 1),
