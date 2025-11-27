@@ -8,10 +8,20 @@ class MarketCubit extends Cubit<MarketState> {
 
   MarketCubit({required this.repository}) : super(MarketInitial());
 
-  Future<void> getMarketById(int marketId, String authorization) async {
+  Future<void> getMarketById({
+    required int marketId,
+    required String month,
+    required int workerId,
+    required String authorization,
+  }) async {
     emit(MarketLoading());
 
-    final result = await repository.getMarketById(marketId, authorization);
+    final result = await repository.getMarketById(
+      marketId,
+      month,
+      workerId,
+      authorization,
+    );
 
     result.fold(
       (failure) => emit(MarketError(_mapFailureToMessage(failure))),
@@ -30,6 +40,8 @@ class MarketCubit extends Cubit<MarketState> {
     }
   }
 }
+
+
 
 
 

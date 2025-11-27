@@ -34,4 +34,3 @@ class HomeMarketModel extends Equatable {
   @override
   List<Object> get props => [id, name, marketPoints, marketLoans];
 }
-

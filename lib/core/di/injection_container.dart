@@ -18,6 +18,11 @@ import '../../features/home/data/datasources/home_remote_data_source.dart';
 import '../../features/home/data/repository/home_repository.dart';
 import '../../features/home/logic/home_cubit.dart';
 
+// Features - Withdraw
+import '../../features/withdraw/data/datasources/withdraw_remote_data_source.dart';
+import '../../features/withdraw/data/repository/withdraw_repository.dart';
+import '../../features/withdraw/logic/cubit/withdraw_cubit.dart';
+
 final sl = GetIt.instance;
 
 Future<void> init() async {
@@ -93,6 +98,32 @@ Future<void> init() async {
 
   // Logic - Register cubits last (they depend on repositories)
   sl.registerFactory(
-    () => HomeCubit(repository: sl<HomeRepository>()),
+    () => HomeCubit(
+      repository: sl<HomeRepository>(),
+      kioskRepository: sl<KioskRepository>(),
+      sharedPreferences: sl<SharedPreferences>(),
+    ),
+  );
+
+  //! Features - Withdraw
+  // Data - Register data sources first
+  sl.registerLazySingleton<WithdrawRemoteDataSource>(
+    () => WithdrawRemoteDataSourceImpl(dio: sl(), apiService: sl<ApiService>()),
+  );
+
+  // Data - Register repositories second
+  sl.registerLazySingleton<WithdrawRepository>(
+    () => WithdrawRepositoryImpl(
+      remoteDataSource: sl(),
+      networkInfo: sl(),
+    ),
+  );
+
+  // Logic - Register cubits last (they depend on repositories)
+  sl.registerFactory(
+    () => WithdrawCubit(
+      repository: sl<WithdrawRepository>(),
+      sharedPreferences: sl<SharedPreferences>(),
+    ),
   );
 }

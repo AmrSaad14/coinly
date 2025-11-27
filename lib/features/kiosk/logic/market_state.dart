@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import '../data/models/market_model.dart';
+import '../data/models/market_details_model.dart';
 
 abstract class MarketState extends Equatable {
   const MarketState();
@@ -13,7 +13,7 @@ class MarketInitial extends MarketState {}
 class MarketLoading extends MarketState {}
 
 class MarketLoaded extends MarketState {
-  final MarketModel market;
+  final MarketDetailsModel market;
 
   const MarketLoaded(this.market);
 
@@ -29,6 +29,8 @@ class MarketError extends MarketState {
   @override
   List<Object> get props => [message];
 }
+
+
 
 
 

@@ -131,8 +131,11 @@ class AppRouter {
           settings: settings,
         );
       case kioskTransactions:
+        final args = settings.arguments as Map<String, dynamic>?;
         return MaterialPageRoute(
-          builder: (_) => const KioskTransactionsScreen(),
+          builder: (_) => KioskTransactionsScreen(
+            marketId: args?['marketId'] as int?,
+          ),
           settings: settings,
         );
 

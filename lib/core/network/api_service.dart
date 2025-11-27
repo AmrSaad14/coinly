@@ -6,8 +6,10 @@ import '../../features/auth/data/models/complete_profile_request_model.dart';
 import '../../features/auth/data/models/login_request_model.dart';
 import '../../features/auth/data/models/login_response_model.dart';
 import '../../features/kiosk/data/models/markets_response_model.dart';
-import '../../features/kiosk/data/models/market_model.dart';
+import '../../features/kiosk/data/models/market_details_model.dart';
 import '../../features/home/data/models/owner_response_model.dart';
+import '../../features/withdraw/data/models/withdrawal_request_model.dart';
+import '../../features/withdraw/data/models/transaction_request_model.dart';
 
 part 'api_service.g.dart';
 
@@ -36,8 +38,10 @@ abstract class ApiService {
   );
 
   @GET('/api/v1/owner/markets/{market_id}')
-  Future<MarketModel> getMarketById(
+  Future<MarketDetailsResponseModel> getMarketById(
     @Path('market_id') int marketId,
+    @Query('month') String month,
+    @Query('worker_id') int workerId,
     @Header('Authorization') String authorization,
   );
 
@@ -56,6 +60,20 @@ abstract class ApiService {
 
   @GET('/api/v1/owner/me')
   Future<OwnerResponseModel> getOwnerMe(
+    @Header('Authorization') String authorization,
+  );
+
+  @POST('/api/v1/owner/withdrawal_requests')
+  @DioResponseType(ResponseType.json)
+  Future<Response<dynamic>> createWithdrawalRequest(
+    @Body() WithdrawalRequestModel request,
+    @Header('Authorization') String authorization,
+  );
+
+  @POST('/api/v1/owner/transactions')
+  @DioResponseType(ResponseType.json)
+  Future<Response<dynamic>> createTransaction(
+    @Body() TransactionRequestModel request,
     @Header('Authorization') String authorization,
   );
 }

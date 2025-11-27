@@ -9,14 +9,18 @@ class ManageKioskTotalPoints extends StatelessWidget {
   final int totalPoints;
   final int totalEarnings;
   final int totalDues;
+  final List<int> weeklyValues; // 4 values for the 4 weeks
   final VoidCallback? onViewTransactions;
+  final int? marketId;
 
   const ManageKioskTotalPoints({
     super.key,
     this.totalPoints = 0,
     this.totalEarnings = 0,
     this.totalDues = 0,
+    this.weeklyValues = const [0, 0, 0, 0],
     this.onViewTransactions,
+    this.marketId,
   });
 
   @override
@@ -55,7 +59,7 @@ class ManageKioskTotalPoints extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
             SizedBox(height: 24.h),
-            // Semi-circular Arc
+            // Semi-circular performance chart for 4 weeks
             SizedBox(height: 200.h, child: _buildSemiCircularArc()),
             // Data Rows
             Row(
@@ -80,7 +84,15 @@ class ManageKioskTotalPoints extends StatelessWidget {
             CustomButton(
               width: double.infinity,
               onTap: () {
-                AppRouter.pushNamed(context, AppRouter.kioskTransactions);
+                if (onViewTransactions != null) {
+                  onViewTransactions!();
+                } else if (marketId != null) {
+                  AppRouter.pushNamed(
+                    context,
+                    AppRouter.kioskTransactions,
+                    arguments: {'marketId': marketId},
+                  );
+                }
               },
               text: 'عرض المعاملات',
             ),
@@ -131,13 +143,20 @@ class ManageKioskTotalPoints extends StatelessWidget {
   }
 
   Widget _buildSemiCircularArc() {
-    final total = totalEarnings + totalDues;
-    final duesRatio = total > 0 ? totalDues / total : 0.5;
+    // Map the 4 weekly values into a single percentage based on their share of total
+    final totalWeekValue =
+        weeklyValues.fold<int>(0, (previousValue, element) => previousValue + element);
+    final firstHalf = (weeklyValues.length >= 2)
+        ? weeklyValues[0] + weeklyValues[1]
+        : totalWeekValue;
+
+    final firstHalfRatio =
+        totalWeekValue > 0 ? firstHalf / totalWeekValue : 0.5;
 
     return Stack(
       alignment: Alignment.center,
       children: [
-        // Full semi-circle background (earnings - light mint green)
+        // Full semi-circle background (second half)
         CircularPercentIndicator(
           radius: 100.r,
           lineWidth: 16.0,
@@ -148,12 +167,11 @@ class ManageKioskTotalPoints extends StatelessWidget {
           startAngle: 180,
           circularStrokeCap: CircularStrokeCap.round,
         ),
-        // Dues segment (dark teal) - left side
-        // Note: This creates the left portion by using reverse direction
+        // First half (weeks 1-2)
         CircularPercentIndicator(
           radius: 100.r,
           lineWidth: 16.0,
-          percent: duesRatio,
+          percent: firstHalfRatio,
           arcType: ArcType.HALF,
           arcBackgroundColor: Colors.transparent,
           progressColor: AppColors.primary200,

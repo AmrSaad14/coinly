@@ -43,8 +43,12 @@ class OwnerDataModel extends Equatable {
       loans: (json['loans'] as num?)?.toInt() ?? 0,
       profits: (json['profits'] as num?)?.toInt() ?? 0,
       workersCount: (json['workers_count'] as num?)?.toInt() ?? 0,
-      markets: (json['markets'] as List<dynamic>?)
-              ?.map((item) => HomeMarketModel.fromJson(item as Map<String, dynamic>))
+      markets:
+          (json['markets'] as List<dynamic>?)
+              ?.map(
+                (item) =>
+                    HomeMarketModel.fromJson(item as Map<String, dynamic>),
+              )
               .toList() ??
           [],
     );
@@ -69,18 +73,17 @@ class OwnerDataModel extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        email,
-        fullName,
-        job,
-        role,
-        isVerified,
-        phoneNumber,
-        points,
-        loans,
-        profits,
-        workersCount,
-        markets,
-      ];
+    id,
+    email,
+    fullName,
+    job,
+    role,
+    isVerified,
+    phoneNumber,
+    points,
+    loans,
+    profits,
+    workersCount,
+    markets,
+  ];
 }
-

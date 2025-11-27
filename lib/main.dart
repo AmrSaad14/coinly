@@ -1,3 +1,4 @@
+import 'package:coinly/core/theme/app_colors.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
@@ -143,7 +144,10 @@ class MyApp extends StatelessWidget {
         return MaterialApp(
           title: AppConstants.appName,
           debugShowCheckedModeBanner: false,
-          theme: ThemeData(fontFamily: GoogleFonts.cairo().fontFamily),
+          theme: ThemeData(
+            fontFamily: GoogleFonts.cairo().fontFamily,
+            scaffoldBackgroundColor: AppColors.scaffoldBackground,
+          ),
           themeMode: ThemeMode.system,
           onGenerateRoute: AppRouter.generateRoute,
           initialRoute: AppRouter.splash,

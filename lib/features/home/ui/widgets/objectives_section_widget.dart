@@ -36,35 +36,6 @@ class ObjectivesSectionWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final defaultObjectives = objectives.isEmpty
-        ? [
-            ObjectiveCard(
-              points: '19 نقطه',
-              name: 'يوسف احمد',
-              status: 'غير مستكمل',
-              target: 'الهدف : 19 نقطه',
-              date: '5 سبتمبر',
-              isCompleted: false,
-            ),
-            ObjectiveCard(
-              points: '20 نقطه',
-              name: 'محمد ابراهيم',
-              status: 'مستكمل',
-              target: 'الهدف : 20 نقطه',
-              date: '7 سبتمبر',
-              isCompleted: true,
-            ),
-            ObjectiveCard(
-              points: '3700 ج.م',
-              name: 'يوسف احمد',
-              status: 'استرجاع',
-              target: 'من المالك',
-              date: '10 صباحا, 5 سبتمبر',
-              isRefund: true,
-            ),
-          ]
-        : objectives;
-
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
       child: Column(
@@ -82,27 +53,42 @@ class ObjectivesSectionWidget extends StatelessWidget {
                   color: AppColors.textDark,
                 ),
               ),
-              InkWell(
-                onTap: onViewAll,
-                child: Text(
-                  'عرض الكل',
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.primary500,
+              if (objectives.isNotEmpty && onViewAll != null)
+                InkWell(
+                  onTap: onViewAll,
+                  child: Text(
+                    'عرض الكل',
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.primary500,
+                    ),
                   ),
                 ),
-              ),
             ],
           ),
           SizedBox(height: 16.h),
           // Objective Cards
-          ...defaultObjectives.map(
-            (objective) => Padding(
-              padding: EdgeInsets.only(bottom: 12.h),
-              child: _ObjectiveCardWidget(objective: objective),
+          if (objectives.isEmpty)
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: 24.h),
+              child: Center(
+                child: Text(
+                  'لا توجد أهداف',
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    color: AppColors.textLight,
+                  ),
+                ),
+              ),
+            )
+          else
+            ...objectives.map(
+              (objective) => Padding(
+                padding: EdgeInsets.only(bottom: 12.h),
+                child: _ObjectiveCardWidget(objective: objective),
+              ),
             ),
-          ),
         ],
       ),
     );

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:coinly/core/theme/app_colors.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class CustomButton extends StatelessWidget {
   const CustomButton({
@@ -13,6 +14,7 @@ class CustomButton extends StatelessWidget {
     this.borderColor,
     this.width,
     this.height,
+    this.icon,
   });
 
   final String text;
@@ -23,6 +25,7 @@ class CustomButton extends StatelessWidget {
   final Color? borderColor;
   final double? width;
   final double? height;
+  final String? icon;
 
   @override
   Widget build(BuildContext context) {
@@ -38,9 +41,7 @@ class CustomButton extends StatelessWidget {
           foregroundColor: textColor ?? Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
-            side: BorderSide(
-              color: borderColor ?? Colors.transparent,
-            ),
+            side: BorderSide(color: borderColor ?? Colors.transparent),
           ),
           elevation: 0,
           disabledBackgroundColor: AppColors.primaryTeal.withValues(alpha: 0.6),
@@ -54,15 +55,39 @@ class CustomButton extends StatelessWidget {
                   valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                 ),
               )
-            : Text(
-                text,
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  color: textColor ?? Colors.white,
-                ),
-              ),
+            : _buildContent(),
       ),
+    );
+  }
+
+  Widget _buildContent() {
+    if (icon == null) {
+      return Text(
+        text,
+        style: TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.w600,
+          color: textColor ?? Colors.white,
+        ),
+      );
+    }
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          text,
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: textColor ?? Colors.white,
+          ),
+        ),
+        const SizedBox(width: 8),
+
+        SvgPicture.asset(icon!, height: 30, width: 30, fit: BoxFit.contain),
+      ],
     );
   }
 }

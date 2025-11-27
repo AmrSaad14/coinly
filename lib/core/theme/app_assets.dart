@@ -17,6 +17,7 @@ class AppAssets {
   static const String keyIcon = '$_icons/key.svg';
   static const String logo2Png = '$_icons/logo_2.png';
   static const String logo2Svg = '$_icons/logo_2.svg';
+  static const String logoPng = '$_icons/logo.png';
   static const String logoIcon = '$_icons/logo.svg';
   static const String logoutIcon = '$_icons/logout.svg';
   static const String moneyReceiveIcon = '$_icons/money-recive.svg';
@@ -33,6 +34,13 @@ class AppAssets {
   static const String email = '$_icons/email.png';
   static const String passKey = '$_icons/passkey.png';
   static const String deleteIcon = '$_icons/trash.svg';
+  static const String withdrawIcon = '$_icons/wallet.svg';
+  static const String transferIcon = '$_icons/trans.svg';
+  static const String vodafoneCash = '$_icons/vfcash.png';
+  static const String orangeCash = '$_icons/orangecash.png';
+  static const String instaPay = '$_icons/instapay.png';
+  static const String eCash = '$_icons/etisalatcash.png';
+  static const String kioskIcon = '$_icons/kioskicon.svg';
 
   // images
   static const String addWorkerImage = '$_images/add_worker.svg';
@@ -44,4 +52,5 @@ class AppAssets {
   static const String otpImage = '$_images/otp.svg';
   static const String ownerAccessImage = '$_images/access.png';
   static const String roleImage = '$_images/role.png';
+  static const String homeHeader = '$_images/home_header.png';
 }

@@ -4,8 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 
+import 'package:coinly/features/kiosk/data/models/market_details_model.dart';
+
 class ManageKioskWorkers extends StatelessWidget {
-  const ManageKioskWorkers({super.key});
+  final List<MarketWorkerModel> workers;
+
+  const ManageKioskWorkers({super.key, this.workers = const []});
 
   @override
   Widget build(BuildContext context) {
@@ -22,13 +26,26 @@ class ManageKioskWorkers extends StatelessWidget {
           shrinkWrap: true,
           primary: false,
           itemBuilder: (context, index) {
+            if (workers.isEmpty) {
+              return ListTile(
+                title: Text(
+                  'لا يوجد عمال مسجلين',
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              );
+            }
+
+            final worker = workers[index];
             return ListTile(
               leading: CircleAvatar(
                 backgroundColor: AppColors.primary500,
                 radius: 24,
               ),
-              title: Text('الموظف الاول'),
-              subtitle: Text('الموظف الاول'),
+              title: Text(worker.name.isNotEmpty ? worker.name : 'عامل'),
+              subtitle: Text(worker.isActive ? 'نشط' : 'غير نشط'),
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -39,7 +56,7 @@ class ManageKioskWorkers extends StatelessWidget {
                       borderRadius: BorderRadius.circular(10.r),
                     ),
                     child: Text(
-                      'نشط',
+                      worker.isActive ? 'نشط' : 'غير نشط',
                       style: TextStyle(
                         color: AppColors.neutral100,
                         fontSize: 12.sp,
@@ -59,7 +76,7 @@ class ManageKioskWorkers extends StatelessWidget {
           separatorBuilder: (context, index) {
             return SizedBox(height: 10.h);
           },
-          itemCount: 10,
+          itemCount: workers.isEmpty ? 1 : workers.length,
         ),
       ),
     );

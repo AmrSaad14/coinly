@@ -29,8 +29,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     ),
     OnboardingData(
       image: AppAssets.onboarding3,
-      title: 'تحكم وادارة ذكية',
-      description: 'إدارة العمال والتحويلات والفكة كلها منظمة داخل التطبيق',
+      title: 'حوّش نقاط و استردهم',
+      description: 'النقاط اللي بتجمعها تقدر تسجل طاب استرداد في اي وقت',
     ),
   ];
 

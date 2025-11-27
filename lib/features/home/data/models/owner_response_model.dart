@@ -22,3 +22,6 @@ class OwnerResponseModel extends Equatable {
   List<Object> get props => [data];
 }
 
+
+
+

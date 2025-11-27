@@ -40,7 +40,18 @@ class _ManageKioskScreenState extends State<ManageKioskScreen> {
 
       if (accessToken != null && accessToken.isNotEmpty) {
         final authorization = 'Bearer $accessToken';
-        _marketCubit.getMarketById(widget.marketId!, authorization);
+        // For now, use the current month (first day) and default worker_id = 1
+        final now = DateTime.now();
+        final monthParam = DateTime(now.year, now.month, 1);
+        final monthString =
+            '${monthParam.year.toString().padLeft(4, '0')}-${monthParam.month.toString().padLeft(2, '0')}-${monthParam.day.toString().padLeft(2, '0')}';
+
+        _marketCubit.getMarketById(
+          marketId: widget.marketId!,
+          month: monthString,
+          workerId: 1,
+          authorization: authorization,
+        );
       }
     } catch (e) {
       print('❌ Error in _loadMarket: $e');
@@ -130,14 +141,19 @@ class _ManageKioskScreenState extends State<ManageKioskScreen> {
         shrinkWrap: true,
         children: [
           ManageKioskTotalPoints(
-            totalPoints: state.market.marketPoints,
-            totalEarnings: state.market.marketPoints,
-            totalDues: state.market.marketLoans,
+            totalPoints: state.market.stats.totalBalance,
+            totalEarnings: state.market.stats.totalProfit,
+            totalDues: state.market.stats.dueAmount,
+            weeklyValues: state.market.chartData
+                .map((c) => c.value)
+                .toList()
+                .cast<int>(),
+            marketId: widget.marketId,
           ),
           SizedBox(height: 20.h),
           AssignPointsWidget(),
           SizedBox(height: 20.h),
-          ManageKioskWorkers(),
+          ManageKioskWorkers(workers: state.market.workersList),
         ],
       );
     }

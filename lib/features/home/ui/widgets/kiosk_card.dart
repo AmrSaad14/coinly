@@ -1,6 +1,7 @@
 import 'package:coinly/core/router/app_router.dart';
 import 'package:coinly/core/theme/app_assets.dart';
 import 'package:coinly/core/theme/app_colors.dart';
+import 'package:coinly/core/widgets/app_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
@@ -10,6 +11,7 @@ class KioskCard extends StatelessWidget {
   final String balance;
   final String debt;
   final int? marketId;
+  final void Function(int marketId)? onDeleted;
 
   const KioskCard({
     super.key,
@@ -17,6 +19,7 @@ class KioskCard extends StatelessWidget {
     required this.balance,
     required this.debt,
     this.marketId,
+    this.onDeleted,
   });
 
   @override
@@ -36,7 +39,26 @@ class KioskCard extends StatelessWidget {
           Row(
             children: [
               InkWell(
-                onTap: () {},
+                onTap: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) => AppDialog(
+                      height: 170.h,
+                      title: 'هل تريد ازالة الكشك الخاص بك؟',
+                      primaryButtonText: 'تاكيد',
+                      onPrimaryPressed: () async {
+                        if (marketId == null) {
+                          return;
+                        }
+
+                        // Notify parent (Cubit) to perform delete logic
+                        onDeleted?.call(marketId!);
+                      },
+                      secondaryButtonText: 'الغاء',
+                      onSecondaryPressed: () {},
+                    ),
+                  );
+                },
                 child: SvgPicture.asset(
                   AppAssets.deleteIcon,
                   width: 20.w,

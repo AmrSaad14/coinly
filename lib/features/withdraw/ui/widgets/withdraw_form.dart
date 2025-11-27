@@ -1,3 +1,4 @@
+import 'package:coinly/core/theme/app_assets.dart';
 import 'package:flutter/material.dart';
 import 'custom_text_field.dart';
 import 'payment_method_selector.dart';
@@ -53,42 +54,6 @@ class _WithdrawFormState extends State<WithdrawForm> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            CustomTextField(
-              controller: _kioskNumberController,
-              label: 'اكتب رقم الكشك',
-              placeholder: '010*******',
-              keyboardType: TextInputType.phone,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'الرجاء إدخال رقم الكشك';
-                }
-                if (value.length < 11) {
-                  return 'رقم الكشك غير صحيح';
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 16),
-            CustomTextField(
-              controller: _pointsController,
-              label: 'النقاط المراد سحبها',
-              placeholder: '25675',
-              keyboardType: TextInputType.number,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'الرجاء إدخال عدد النقاط';
-                }
-                final points = int.tryParse(value);
-                if (points == null || points <= 0) {
-                  return 'الرجاء إدخال عدد نقاط صحيح';
-                }
-                if (points > 3569) {
-                  // Max balance
-                  return 'الرصيد غير كافي';
-                }
-                return null;
-              },
-            ),
             const SizedBox(height: 24),
             const Text(
               'اختار وسيلة السحب',
