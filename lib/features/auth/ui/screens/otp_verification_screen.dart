@@ -5,9 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pinput/pinput.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:dio/dio.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/di/injection_container.dart' as di;
 import '../../../../core/network/api_service.dart';
+import '../../../../core/utils/message_extractor.dart';
 import '../../data/models/verify_user_request_model.dart';
 
 class OtpVerificationScreen extends StatefulWidget {
@@ -414,7 +416,13 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
         });
 
         String errorMessage = 'حدث خطأ أثناء التحقق من المستخدم';
-        if (e.toString().contains('SocketException') ||
+
+        // Extract error message from API response if it's a DioException
+        if (e is DioException && e.response?.data != null) {
+          errorMessage = MessageExtractor.extractErrorFromDioException(
+            e.response?.data,
+          );
+        } else if (e.toString().contains('SocketException') ||
             e.toString().contains('TimeoutException')) {
           errorMessage = 'فشل الاتصال بالخادم. يرجى المحاولة مرة أخرى';
         } else if (e.toString().contains('401') ||

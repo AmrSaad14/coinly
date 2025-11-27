@@ -46,12 +46,16 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
             print('✅ Credential Provider: ${credential.providerId}');
             print('✅ Sign-In Method: ${credential.signInMethod}');
             try {
-              final userCredential = await _auth.signInWithCredential(credential);
+              final userCredential = await _auth.signInWithCredential(
+                credential,
+              );
               print('✅ Sign-in successful');
               print('✅ User UID: ${userCredential.user?.uid}');
               print('✅ User Phone: ${userCredential.user?.phoneNumber}');
-              print('✅ Is New User: ${userCredential.additionalUserInfo?.isNewUser}');
-              
+              print(
+                '✅ Is New User: ${userCredential.additionalUserInfo?.isNewUser}',
+              );
+
               if (mounted) {
                 setState(() {
                   _isLoading = false;
@@ -75,7 +79,7 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
             print('❌ Error Message: ${e.message}');
             print('❌ Error Details: ${e.toString()}');
             print('❌ Stack Trace: ${e.stackTrace}');
-            
+
             if (mounted) {
               setState(() {
                 _isLoading = false;
@@ -112,7 +116,7 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
             print('✅ Resend Token: $resendToken');
             print('✅ Phone Number: $_completePhoneNumber');
             print('✅ Timestamp: ${DateTime.now().toIso8601String()}');
-            
+
             if (mounted) {
               setState(() {
                 _isLoading = false;
@@ -197,7 +201,7 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
 
                   // Title
                   const Text(
-                    'تسجيل الدخول',
+                    'تسجيل حساب جديد',
                     style: TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,

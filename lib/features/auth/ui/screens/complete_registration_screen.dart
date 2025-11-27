@@ -8,6 +8,7 @@ import '../../../../core/router/app_router.dart';
 import '../../../../core/di/injection_container.dart' as di;
 import '../../../../core/network/api_service.dart';
 import '../../../../core/utils/constants.dart';
+import '../../../../core/utils/message_extractor.dart';
 import '../../data/models/complete_profile_request_model.dart';
 
 class CompleteRegistrationScreen extends StatefulWidget {
@@ -293,38 +294,23 @@ class _CompleteRegistrationScreenState
 
           // Check if it's a DioException and extract server error message
           if (e is DioException && e.response?.data != null) {
-            final responseData = e.response!.data;
-            if (responseData is Map && responseData.containsKey('error')) {
-              final serverError = responseData['error'];
-              errorMessage = 'خطأ من الخادم: $serverError';
-
-              // Specific handling for common errors
-              if (serverError.toString().toLowerCase().contains(
-                'invalid client',
-              )) {
-                errorMessage = 'معرف العميل غير صحيح. يرجى التحقق من الإعدادات';
-              } else if (serverError.toString().toLowerCase().contains(
-                'unauthorized',
-              )) {
-                errorMessage = 'غير مصرح. يرجى التحقق من بيانات الاعتماد';
-              }
-            } else if (responseData is Map &&
-                responseData.containsKey('message')) {
-              errorMessage = 'خطأ: ${responseData['message']}';
-            }
+            // Use MessageExtractor to get error_description or proper error message
+            errorMessage = MessageExtractor.extractErrorFromDioException(
+              e.response?.data,
+            );
           } else {
             // Fallback to status code based messages
             if (e.toString().contains('SocketException') ||
                 e.toString().contains('TimeoutException')) {
               errorMessage = 'فشل الاتصال بالخادم. يرجى المحاولة مرة أخرى';
             } else if (e.toString().contains('401')) {
-              errorMessage = 'فشل التحقق من المستخدم (401)';
+              errorMessage = 'فشل التحقق من المستخدم';
             } else if (e.toString().contains('403')) {
-              errorMessage = 'غير مصرح (403)';
+              errorMessage = 'غير مصرح';
             } else if (e.toString().contains('400')) {
-              errorMessage = 'بيانات غير صحيحة (400)';
+              errorMessage = 'بيانات غير صحيحة';
             } else if (e.toString().contains('500')) {
-              errorMessage = 'خطأ في الخادم (500)';
+              errorMessage = 'خطأ في الخادم';
             }
           }
 
