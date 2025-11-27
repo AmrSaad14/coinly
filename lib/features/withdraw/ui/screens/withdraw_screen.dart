@@ -41,8 +41,9 @@ class _WithDrawScreenState extends State<WithDrawScreen> {
         body: SafeArea(
           child: BlocBuilder<HomeCubit, HomeState>(
             builder: (context, state) {
-              final currentBalance =
-                  state is HomeLoaded ? state.ownerData.points : 0;
+              final currentBalance = state is HomeLoaded
+                  ? state.ownerData.points
+                  : 0;
 
               return SingleChildScrollView(
                 child: Padding(
@@ -61,9 +62,7 @@ class _WithDrawScreenState extends State<WithDrawScreen> {
                         coinValue: 10,
                       ),
                       const SizedBox(height: 32),
-                      WithdrawForm(
-                        marketId: widget.marketId,
-                      ),
+                      WithdrawForm(marketId: widget.marketId),
                     ],
                   ),
                 ),

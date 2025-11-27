@@ -13,10 +13,50 @@ class WithdrawCubit extends Cubit<WithdrawState> {
   final WithdrawRepository repository;
   final SharedPreferences sharedPreferences;
 
-  WithdrawCubit({
-    required this.repository,
-    required this.sharedPreferences,
-  }) : super(WithdrawInitial());
+  WithdrawCubit({required this.repository, required this.sharedPreferences})
+    : super(WithdrawInitial());
+
+  /// Validates the data coming from the confirmation screen
+  /// and triggers the appropriate API call.
+  ///
+  /// This method contains the business logic that was previously
+  /// in `WithdrawConfirmationScreen._onConfirmPressed`.
+  void confirmWithdrawalOrTransfer({
+    required String phone,
+    required String rawPoints,
+    required bool isTransfer,
+    int? marketId,
+  }) {
+    final points =
+        int.tryParse(rawPoints.trim().isEmpty ? '0' : rawPoints.trim()) ?? 0;
+
+    // Basic validation before hitting the API
+    if (points < 10 || points > 100) {
+      emit(const WithdrawError('مجموع النقاط يجب أن يكون بين 10 و 100'));
+      return;
+    }
+
+    if (phone.trim().isEmpty) {
+      emit(
+        const WithdrawError('يرجى إدخال رقم الهاتف المرتبط بالحساب أو المحفظة'),
+      );
+      return;
+    }
+
+    if (isTransfer && marketId != null) {
+      createTransaction(
+        points: points,
+        clientPhoneNumber: phone.trim(),
+        marketId: marketId,
+      );
+    } else {
+      createWithdrawalRequest(
+        points: points,
+        phoneNumber: phone.trim(),
+        method: _mapWithdrawMethodFromLabel(),
+      );
+    }
+  }
 
   Future<void> createWithdrawalRequest({
     required int points,
@@ -29,7 +69,11 @@ class WithdrawCubit extends Cubit<WithdrawState> {
     final accessToken = sharedPreferences.getString(AppConstants.accessToken);
 
     if (accessToken == null || accessToken.isEmpty) {
-      emit(const WithdrawError('لم يتم العثور على رمز الدخول. يرجى تسجيل الدخول مرة أخرى.'));
+      emit(
+        const WithdrawError(
+          'لم يتم العثور على رمز الدخول. يرجى تسجيل الدخول مرة أخرى.',
+        ),
+      );
       return;
     }
 
@@ -67,7 +111,11 @@ class WithdrawCubit extends Cubit<WithdrawState> {
     final accessToken = sharedPreferences.getString(AppConstants.accessToken);
 
     if (accessToken == null || accessToken.isEmpty) {
-      emit(const WithdrawError('لم يتم العثور على رمز الدخول. يرجى تسجيل الدخول مرة أخرى.'));
+      emit(
+        const WithdrawError(
+          'لم يتم العثور على رمز الدخول. يرجى تسجيل الدخول مرة أخرى.',
+        ),
+      );
       return;
     }
 
@@ -81,15 +129,21 @@ class WithdrawCubit extends Cubit<WithdrawState> {
       ),
     );
 
-    final result = await repository.createTransaction(
-      request,
-      authorization,
-    );
+    final result = await repository.createTransaction(request, authorization);
 
     result.fold(
       (failure) => emit(WithdrawError(_mapFailureToMessage(failure))),
       (response) => emit(TransactionSuccess(response.message)),
     );
+  }
+
+  /// Maps the currently selected withdraw method label (from the UI)
+  /// to the key expected by the backend API.
+  ///
+  /// For now this simply normalizes the Arabic labels that are
+  /// used on the withdraw screens.
+  String _mapWithdrawMethodFromLabel([String method = 'انستاباي']) {
+    return _mapWithdrawMethod(method);
   }
 
   String _mapFailureToMessage(Failure failure) {

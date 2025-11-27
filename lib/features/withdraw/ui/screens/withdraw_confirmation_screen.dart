@@ -147,45 +147,13 @@ class _WithdrawConfirmationScreenState
   }
 
   void _onConfirmPressed(BuildContext context) {
-    final phone = _phoneController.text.trim();
-    final rawPoints = _pointsController.text.trim();
-    final points = int.tryParse(rawPoints.isEmpty ? '0' : rawPoints) ?? 0;
-
-    // Basic validation before hitting the API
-    if (points < 10 || points > 100) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('مجموع النقاط يجب أن يكون بين 10 و 100'),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return;
-    }
-
-    if (phone.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('يرجى إدخال رقم الهاتف المرتبط بالحساب أو المحفظة'),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return;
-    }
-
     final cubit = context.read<WithdrawCubit>();
 
-    if (widget.isTransfer && widget.marketId != null) {
-      cubit.createTransaction(
-        points: points,
-        clientPhoneNumber: phone,
-        marketId: widget.marketId!,
-      );
-    } else {
-      cubit.createWithdrawalRequest(
-        points: points,
-        phoneNumber: phone,
-        method: widget.paymentMethod,
-      );
-    }
+    cubit.confirmWithdrawalOrTransfer(
+      phone: _phoneController.text,
+      rawPoints: _pointsController.text,
+      isTransfer: widget.isTransfer,
+      marketId: widget.marketId,
+    );
   }
 }
