@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../data/models/owner_data_model.dart';
+import '../../logic/home_cubit.dart';
 import 'kiosk_card.dart';
 
 class MyKiosksSection extends StatelessWidget {
@@ -68,12 +70,13 @@ class MyKiosksSection extends StatelessWidget {
             width: 350,
             child: KioskCard(
               name: market.name,
-              balance: '${market.marketPoints} ج.م',
-              debt: '${market.marketLoans} ج.م',
+              balance: '${market.marketPoints}',
+              debt: '${market.marketLoans}',
               marketId: market.id,
               onDeleted: (id) {
-                // Actual delete logic is handled in HomeCubit via the parent
-                // This widget stays as a pure UI renderer.
+                // Delegate delete action to HomeCubit, which calls
+                // DELETE {{base_url}}/api/v1/owner/markets/{{market_id}}
+                context.read<HomeCubit>().deleteMarket(id);
               },
             ),
           ),

@@ -7,6 +7,7 @@ class WithdrawDetails extends StatelessWidget {
   final String paymentMethodIcon;
   final TextEditingController phoneController;
   final TextEditingController pointsController;
+  final bool showPaymentMethodIcon;
 
   const WithdrawDetails({
     super.key,
@@ -15,6 +16,7 @@ class WithdrawDetails extends StatelessWidget {
     required this.paymentMethodIcon,
     required this.phoneController,
     required this.pointsController,
+    this.showPaymentMethodIcon = true,
   });
 
   @override
@@ -22,17 +24,19 @@ class WithdrawDetails extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Container(
-          width: 72,
-          height: 72,
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: const Color(0xFFF6F9F8),
-            shape: BoxShape.circle,
+        if (showPaymentMethodIcon) ...[
+          Container(
+            width: 72,
+            height: 72,
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF6F9F8),
+              shape: BoxShape.circle,
+            ),
+            child: Image.asset(paymentMethodIcon, fit: BoxFit.contain),
           ),
-          child: Image.asset(paymentMethodIcon, fit: BoxFit.contain),
-        ),
-        const SizedBox(height: 12),
+          const SizedBox(height: 12),
+        ],
         Text(
           paymentMethod,
           style: const TextStyle(

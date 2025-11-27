@@ -51,7 +51,7 @@ class KioskCard extends StatelessWidget {
                           return;
                         }
 
-                        // Notify parent (Cubit) to perform delete logic
+                        // Notify parent (Cubit/HomeCubit) to perform delete logic
                         onDeleted?.call(marketId!);
                       },
                       secondaryButtonText: 'الغاء',

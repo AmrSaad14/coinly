@@ -5,15 +5,16 @@ part 'withdrawal_response_model.g.dart';
 @JsonSerializable()
 class WithdrawalResponseModel {
   final String message;
-  final bool success;
-  
-  @JsonKey(name: 'data')
-  final Map<String, dynamic>? data;
+  @JsonKey(name: 'withdrawal')
+  final Map<String, dynamic>? withdrawal;
+
+  @JsonKey(name: 'remaining_balance')
+  final int? remainingBalance;
 
   WithdrawalResponseModel({
     required this.message,
-    required this.success,
-    this.data,
+    this.withdrawal,
+    this.remainingBalance,
   });
 
   factory WithdrawalResponseModel.fromJson(Map<String, dynamic> json) =>

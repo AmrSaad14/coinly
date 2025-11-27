@@ -10,14 +10,14 @@ WithdrawalResponseModel _$WithdrawalResponseModelFromJson(
         Map<String, dynamic> json) =>
     WithdrawalResponseModel(
       message: json['message'] as String,
-      success: json['success'] as bool,
-      data: json['data'] as Map<String, dynamic>?,
+      withdrawal: json['withdrawal'] as Map<String, dynamic>?,
+      remainingBalance: (json['remaining_balance'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$WithdrawalResponseModelToJson(
         WithdrawalResponseModel instance) =>
     <String, dynamic>{
       'message': instance.message,
-      'success': instance.success,
-      'data': instance.data,
+      'withdrawal': instance.withdrawal,
+      'remaining_balance': instance.remainingBalance,
     };

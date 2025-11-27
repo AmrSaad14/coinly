@@ -1,4 +1,5 @@
 import 'package:coinly/core/di/injection_container.dart' as di;
+import 'package:coinly/core/router/app_router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -86,7 +87,7 @@ class _WithdrawConfirmationScreenState
                       ),
                     ),
                   );
-                  Navigator.pop(context);
+                  AppRouter.pushNamedAndRemoveUntil(context, AppRouter.home);
                 } else if (state is TransactionSuccess) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
@@ -98,7 +99,7 @@ class _WithdrawConfirmationScreenState
                       ),
                     ),
                   );
-                  Navigator.pop(context);
+                  AppRouter.pushNamedAndRemoveUntil(context, AppRouter.home);
                 }
               },
               builder: (context, state) {
@@ -125,6 +126,7 @@ class _WithdrawConfirmationScreenState
                         paymentMethodIcon: widget.paymentMethodIcon,
                         phoneController: _phoneController,
                         pointsController: _pointsController,
+                        showPaymentMethodIcon: !widget.isTransfer,
                       ),
                       SizedBox(height: 48.h),
                       WithdrawButton(
