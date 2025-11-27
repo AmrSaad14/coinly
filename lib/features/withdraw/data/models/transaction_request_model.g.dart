@@ -9,15 +9,26 @@ part of 'transaction_request_model.dart';
 TransactionRequestModel _$TransactionRequestModelFromJson(
         Map<String, dynamic> json) =>
     TransactionRequestModel(
-      points: (json['points'] as num).toInt(),
-      kioskNumber: json['kiosk_number'] as String,
-      paymentMethod: json['payment_method'] as String?,
+      transaction:
+          TransactionBody.fromJson(json['transaction'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$TransactionRequestModelToJson(
         TransactionRequestModel instance) =>
     <String, dynamic>{
-      'points': instance.points,
-      'kiosk_number': instance.kioskNumber,
-      'payment_method': instance.paymentMethod,
+      'transaction': instance.transaction.toJson(),
+    };
+
+TransactionBody _$TransactionBodyFromJson(Map<String, dynamic> json) =>
+    TransactionBody(
+      clientPhoneNumber: json['client_phone_number'] as String,
+      marketId: (json['market_id'] as num).toInt(),
+      pointsTotal: (json['points_total'] as num).toInt(),
+    );
+
+Map<String, dynamic> _$TransactionBodyToJson(TransactionBody instance) =>
+    <String, dynamic>{
+      'client_phone_number': instance.clientPhoneNumber,
+      'market_id': instance.marketId,
+      'points_total': instance.pointsTotal,
     };

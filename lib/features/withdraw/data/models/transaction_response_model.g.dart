@@ -10,14 +10,14 @@ TransactionResponseModel _$TransactionResponseModelFromJson(
         Map<String, dynamic> json) =>
     TransactionResponseModel(
       message: json['message'] as String,
-      success: json['success'] as bool,
-      data: json['data'] as Map<String, dynamic>?,
+      transaction: json['transaction'] as Map<String, dynamic>?,
+      workerNewBalance: (json['worker_new_balance'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$TransactionResponseModelToJson(
         TransactionResponseModel instance) =>
     <String, dynamic>{
       'message': instance.message,
-      'success': instance.success,
-      'data': instance.data,
+      'transaction': instance.transaction,
+      'worker_new_balance': instance.workerNewBalance,
     };

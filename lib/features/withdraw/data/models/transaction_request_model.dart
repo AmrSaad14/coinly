@@ -4,18 +4,11 @@ part 'transaction_request_model.g.dart';
 
 @JsonSerializable()
 class TransactionRequestModel {
-  final int points;
-  
-  @JsonKey(name: 'kiosk_number')
-  final String kioskNumber;
-  
-  @JsonKey(name: 'payment_method')
-  final String? paymentMethod;
+  @JsonKey(name: 'transaction')
+  final TransactionBody transaction;
 
   TransactionRequestModel({
-    required this.points,
-    required this.kioskNumber,
-    this.paymentMethod,
+    required this.transaction,
   });
 
   factory TransactionRequestModel.fromJson(Map<String, dynamic> json) =>
@@ -24,4 +17,25 @@ class TransactionRequestModel {
   Map<String, dynamic> toJson() => _$TransactionRequestModelToJson(this);
 }
 
+@JsonSerializable()
+class TransactionBody {
+  @JsonKey(name: 'client_phone_number')
+  final String clientPhoneNumber;
 
+  @JsonKey(name: 'market_id')
+  final int marketId;
+
+  @JsonKey(name: 'points_total')
+  final int pointsTotal;
+
+  TransactionBody({
+    required this.clientPhoneNumber,
+    required this.marketId,
+    required this.pointsTotal,
+  });
+
+  factory TransactionBody.fromJson(Map<String, dynamic> json) =>
+      _$TransactionBodyFromJson(json);
+
+  Map<String, dynamic> toJson() => _$TransactionBodyToJson(this);
+}

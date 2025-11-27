@@ -1,9 +1,15 @@
-import 'package:coinly/features/home/ui/screens/kiosk_transactions_screen.dart';
-import 'package:coinly/features/home/ui/screens/notifications_screen.dart';
-import 'package:coinly/features/home/ui/screens/manage_kiosk.dart';
-import 'package:coinly/features/add/ui/screens/add_worker_screen.dart';
+import 'package:coinly/core/di/injection_container.dart' as di;
 import 'package:coinly/features/add/ui/screens/add_worker_info.dart';
+import 'package:coinly/features/add/ui/screens/add_worker_screen.dart';
+import 'package:coinly/features/auth/logic/cubit/cubit/login_cubit.dart';
+import 'package:coinly/features/home/ui/screens/kiosk_transactions_screen.dart';
+import 'package:coinly/features/home/ui/screens/manage_kiosk.dart';
+import 'package:coinly/features/home/ui/screens/notifications_screen.dart';
+import 'package:coinly/features/withdraw/ui/screens/withdraw_confirmation_screen.dart';
+import 'package:coinly/core/theme/app_assets.dart';
+import 'package:coinly/features/withdraw/ui/screens/withdraw_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../layout/main_layout.dart';
 import '../../features/splash/splash_screen.dart';
 import '../../features/onboarding/ui/screens/onboarding_screen.dart';
@@ -12,6 +18,7 @@ import '../../features/auth/ui/screens/otp_verification_screen.dart';
 import '../../features/auth/ui/screens/complete_registration_screen.dart';
 import '../../features/auth/ui/screens/login_screen.dart';
 import '../../features/auth/ui/screens/owner_access_screen.dart';
+import '../../features/auth/ui/screens/blocked_user.dart';
 import '../../features/auth/ui/screens/select role.dart';
 import '../../features/kiosk/create_kiosk_screen.dart';
 
@@ -25,8 +32,11 @@ class AppRouter {
   static const String completeRegistration = '/complete-registration';
   static const String selectUserRole = '/select-user-role';
   static const String ownerAccess = '/owner-access';
+  static const String blockedUser = '/blocked-user';
   static const String createKiosk = '/create-kiosk';
   static const String createStore = '/create-store';
+  static const String withdraw = '/withdraw';
+   static const String withdrawConfirmation = '/withdraw-confirmation';
   static const String home = '/home';
   static const String notifications = '/notifications';
   static const String manageKiosk = '/manage-kiosk';
@@ -50,7 +60,10 @@ class AppRouter {
 
       case login:
         return MaterialPageRoute(
-          builder: (_) => const LoginScreen(),
+          builder: (_) => BlocProvider(
+            create: (_) => di.sl<LoginCubit>(),
+            child: const LoginScreen(),
+          ),
           settings: settings,
         );
 
@@ -93,9 +106,36 @@ class AppRouter {
           settings: settings,
         );
 
+      case blockedUser:
+        return MaterialPageRoute(
+          builder: (_) => const BlockedUserScreen(),
+          settings: settings,
+        );
+
       case createKiosk:
         return MaterialPageRoute(
           builder: (_) => const CreatekioskScreen(),
+          settings: settings,
+        );
+
+      case withdraw:
+        final args = settings.arguments as Map<String, dynamic>?;
+        return MaterialPageRoute(
+          builder: (_) => WithDrawScreen(
+            marketId: args?['marketId'] as int?,
+          ),
+          settings: settings,
+        );
+
+      case withdrawConfirmation:
+        final args = settings.arguments as Map<String, dynamic>?;
+        return MaterialPageRoute(
+          builder: (_) => WithdrawConfirmationScreen(
+            paymentMethod: 'تحويل النقاط',
+            paymentMethodIcon: AppAssets.transferIcon,
+            isTransfer: true,
+            marketId: args?['marketId'] as int?,
+          ),
           settings: settings,
         );
 
@@ -133,9 +173,8 @@ class AppRouter {
       case kioskTransactions:
         final args = settings.arguments as Map<String, dynamic>?;
         return MaterialPageRoute(
-          builder: (_) => KioskTransactionsScreen(
-            marketId: args?['marketId'] as int?,
-          ),
+          builder: (_) =>
+              KioskTransactionsScreen(marketId: args?['marketId'] as int?),
           settings: settings,
         );
 

@@ -5,15 +5,17 @@ part 'transaction_response_model.g.dart';
 @JsonSerializable()
 class TransactionResponseModel {
   final String message;
-  final bool success;
-  
-  @JsonKey(name: 'data')
-  final Map<String, dynamic>? data;
+
+  @JsonKey(name: 'transaction')
+  final Map<String, dynamic>? transaction;
+
+  @JsonKey(name: 'worker_new_balance')
+  final int? workerNewBalance;
 
   TransactionResponseModel({
     required this.message,
-    required this.success,
-    this.data,
+    this.transaction,
+    this.workerNewBalance,
   });
 
   factory TransactionResponseModel.fromJson(Map<String, dynamic> json) =>
@@ -21,5 +23,4 @@ class TransactionResponseModel {
 
   Map<String, dynamic> toJson() => _$TransactionResponseModelToJson(this);
 }
-
 

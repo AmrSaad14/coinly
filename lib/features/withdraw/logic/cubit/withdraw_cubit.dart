@@ -35,11 +35,13 @@ class WithdrawCubit extends Cubit<WithdrawState> {
 
     final authorization = 'Bearer $accessToken';
 
+    final apiMethod = _mapWithdrawMethod(method);
+
     final request = WithdrawalRequestModel(
       withdrawalRequest: WithdrawalRequest(
         points: points,
         phoneNumber: phoneNumber,
-        method: method,
+        method: apiMethod,
       ),
     );
 
@@ -56,8 +58,8 @@ class WithdrawCubit extends Cubit<WithdrawState> {
 
   Future<void> createTransaction({
     required int points,
-    required String kioskNumber,
-    String? paymentMethod,
+    required String clientPhoneNumber,
+    required int marketId,
   }) async {
     emit(TransactionLoading());
 
@@ -72,9 +74,11 @@ class WithdrawCubit extends Cubit<WithdrawState> {
     final authorization = 'Bearer $accessToken';
 
     final request = TransactionRequestModel(
-      points: points,
-      kioskNumber: kioskNumber,
-      paymentMethod: paymentMethod,
+      transaction: TransactionBody(
+        clientPhoneNumber: clientPhoneNumber,
+        marketId: marketId,
+        pointsTotal: points,
+      ),
     );
 
     final result = await repository.createTransaction(
@@ -97,5 +101,17 @@ class WithdrawCubit extends Cubit<WithdrawState> {
       default:
         return 'حدث خطأ غير متوقع';
     }
+  }
+
+  String _mapWithdrawMethod(String method) {
+    final normalized = method.trim();
+
+    if (normalized.contains('انستاباي')) {
+      return 'instapay';
+    }
+
+    // You can extend this mapping if backend expects specific keys
+    // for other Arabic labels (e.g. vodafone_cash, orange_cash, etc.).
+    return normalized;
   }
 }

@@ -6,6 +6,9 @@ import '../network/api_service.dart';
 import '../network/network_info.dart';
 import '../utils/constants.dart';
 
+// Features - Auth
+import '../../features/auth/logic/cubit/cubit/login_cubit.dart';
+
 // Features - Kiosk
 import '../../features/kiosk/data/datasources/kiosk_remote_data_source.dart';
 import '../../features/kiosk/data/repository/kiosk_repository.dart';
@@ -53,6 +56,15 @@ Future<void> init() async {
 
   //! Core - API Service
   sl.registerLazySingleton<ApiService>(() => ApiService(sl<Dio>()));
+
+  //! Features - Auth
+  sl.registerFactory(
+    () => LoginCubit(
+      apiService: sl<ApiService>(),
+      dio: sl<Dio>(),
+      sharedPreferences: sl<SharedPreferences>(),
+    ),
+  );
 
   //! Features - Kiosk
   // Data - Register data sources first

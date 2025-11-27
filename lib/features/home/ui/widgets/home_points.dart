@@ -1,3 +1,4 @@
+import 'package:coinly/core/router/app_router.dart';
 import 'package:coinly/core/theme/app_assets.dart';
 import 'package:coinly/core/theme/app_colors.dart';
 import 'package:coinly/core/widgets/custom_button.dart';
@@ -134,8 +135,13 @@ class HomePoints extends StatelessWidget {
                                         icon: AppAssets.kioskIcon,
                                         text: market.name,
                                         onTap: () {
-                                          // TODO: Implement withdraw logic for this kiosk
-                                          Navigator.of(context).pop();
+                                          AppRouter.pushReplacementNamed(
+                                            context,
+                                            AppRouter.withdrawConfirmation,
+                                            arguments: {
+                                              'marketId': market.id,
+                                            },
+                                          );
                                         },
                                       ),
                                     );
@@ -226,8 +232,10 @@ class HomePoints extends StatelessWidget {
                                         icon: AppAssets.kioskIcon,
                                         text: market.name,
                                         onTap: () {
-                                          // TODO: Implement withdraw logic for this kiosk
-                                          Navigator.of(context).pop();
+                                          AppRouter.pushReplacementNamed(
+                                            context,
+                                            AppRouter.withdraw,
+                                          );
                                         },
                                       ),
                                     );
