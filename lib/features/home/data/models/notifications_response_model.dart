@@ -28,3 +28,4 @@ class NotificationsResponseModel extends Equatable {
   List<Object?> get props => [notifications];
 }
 
+

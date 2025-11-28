@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../../features/home/ui/screens/home_screen.dart';
 import '../../features/add/ui/screens/add_worker_screen.dart';
-import '../../features/withdraw/ui/screens/withdraw_screen.dart';
 import '../../features/profile/ui/screens/profile_screen.dart';
 
 class MainLayout extends StatefulWidget {
@@ -14,14 +13,14 @@ class MainLayout extends StatefulWidget {
 }
 
 class _MainLayoutState extends State<MainLayout> {
-  int _currentIndex = 3; // Start with Home (الرئيسية) - now at index 3
+  // Start with Home (الرئيسية) - now at index 2 after removing سحب tab
+  int _currentIndex = 2;
 
   // List of screens for each navigation tab (Reversed for RTL display)
   final List<Widget> _screens = const [
     ProfileScreen(), // Index 0 - الملف الشخصي (leftmost)
-    WithDrawScreen(), // Index 1 - سحب
-    CreatekioskScreen(), // Index 2 - اضافة
-    HomeScreen(), // Index 3 - الرئيسية (rightmost)
+    CreatekioskScreen(), // Index 1 - اضافة
+    HomeScreen(), // Index 2 - الرئيسية (rightmost)
   ];
 
   void _onNavigationIndexChanged(int index) {
@@ -61,11 +60,6 @@ class _MainLayoutState extends State<MainLayout> {
             icon: _buildNavIcon('assets/icons/profile.svg', false),
             activeIcon: _buildNavIcon('assets/icons/profile.svg', true),
             label: 'الملف الشخصي',
-          ),
-          BottomNavigationBarItem(
-            icon: _buildNavIcon('assets/icons/coin.svg', false),
-            activeIcon: _buildNavIcon('assets/icons/coin.svg', true),
-            label: 'سحب',
           ),
           BottomNavigationBarItem(
             icon: _buildNavIcon('assets/icons/add.svg', false),

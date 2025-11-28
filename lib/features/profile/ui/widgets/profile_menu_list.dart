@@ -1,8 +1,10 @@
+import 'package:coinly/core/widgets/app_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:coinly/core/di/injection_container.dart' as di;
 import 'package:coinly/core/network/api_service.dart';
 import 'package:coinly/core/router/app_router.dart';
 import 'package:coinly/core/utils/constants.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'profile_menu_item.dart';
 
@@ -75,7 +77,17 @@ class ProfileMenuList extends StatelessWidget {
           title: 'تسجيل الخروج',
           isDestructive: true,
           onTap: () {
-            _handleLogout(context);
+            showDialog(
+              context: context,
+              builder: (dialogContext) => AppDialog(
+                height: 180.h,
+                title: 'تسجيل الخروج',
+                description: 'هل أنت متأكد من تسجيل الخروج؟',
+                primaryButtonText: 'تاكيد ',
+                onPrimaryPressed: () => _handleLogout(context),
+                secondaryButtonText: 'الغاء',
+              ),
+            );
           },
         ),
       ],

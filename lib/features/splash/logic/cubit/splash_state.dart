@@ -27,4 +27,11 @@ final class SplashReady extends SplashState {
   final Animation<Offset> logoSlide;
 }
 
-final class SplashNavigate extends SplashState {}
+final class SplashNavigate extends SplashState {
+  const SplashNavigate({required this.route});
+
+  final String route;
+
+  @override
+  List<Object?> get props => [route];
+}

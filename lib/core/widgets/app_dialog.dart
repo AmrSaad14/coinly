@@ -107,7 +107,10 @@ class AppDialog extends StatelessWidget {
                           text: primaryButtonText,
                           onTap: () {
                             Navigator.of(context).pop();
-                            onPrimaryPressed();
+                            // Delay callback execution to ensure dialog is fully dismissed
+                            Future.microtask(() {
+                              onPrimaryPressed();
+                            });
                           },
                           backgroundColor: AppColors.primary500,
                           height: 52.h,
@@ -122,7 +125,10 @@ class AppDialog extends StatelessWidget {
                       text: primaryButtonText,
                       onTap: () {
                         Navigator.of(context).pop();
-                        onPrimaryPressed();
+                        // Delay callback execution to ensure dialog is fully dismissed
+                        Future.microtask(() {
+                          onPrimaryPressed();
+                        });
                       },
                       backgroundColor: AppColors.primary500,
                       height: 52.h,

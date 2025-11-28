@@ -1,4 +1,5 @@
 import 'package:coinly/core/router/app_router.dart';
+import 'package:coinly/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../data/models/owner_data_model.dart';
@@ -22,19 +23,19 @@ class HomeHeader extends StatelessWidget {
               AppRouter.pushNamed(context, AppRouter.notifications);
             },
             child: Container(
-              width: 40,
-              height: 40,
+              width: 32,
+              height: 32,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.textGray.withValues(alpha: 0.24),
                 shape: BoxShape.circle,
               ),
               child: Stack(
                 children: [
-                  const Center(
+                  Center(
                     child: Icon(
                       Icons.notifications_none,
-                      color: Color(0xFF2A9578),
-                      size: 24,
+                      color: AppColors.neutral100,
+                      size: 16.sp,
                     ),
                   ),
                   Positioned(
@@ -82,23 +83,6 @@ class HomeHeader extends StatelessWidget {
           ),
 
           const SizedBox(width: 12),
-
-          // Profile Picture (RIGHT)
-          Container(
-            width: 50,
-            height: 50,
-            decoration: BoxDecoration(shape: BoxShape.circle),
-            child: ClipOval(
-              child: Container(
-                color: const Color(0xFFE8E8E8),
-                child: const Icon(
-                  Icons.person,
-                  color: Color(0xFF9E9E9E),
-                  size: 26,
-                ),
-              ),
-            ),
-          ),
         ],
       ),
     );

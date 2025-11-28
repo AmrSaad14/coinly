@@ -1,7 +1,6 @@
 import 'package:coinly/core/theme/app_colors.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
@@ -16,7 +15,6 @@ import 'core/utils/constants.dart';
 void main() async {
   // Preserve the splash screen while we initialize
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
-  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
   // Initialize Firebase
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
@@ -47,7 +45,6 @@ void main() async {
   runApp(const MyApp());
 
   // Remove the splash screen after app is ready
-  FlutterNativeSplash.remove();
 }
 
 /// Initialize Firebase App Check for security

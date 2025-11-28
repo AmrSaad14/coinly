@@ -1,15 +1,22 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:coinly/core/utils/constants.dart';
+import 'package:coinly/core/router/app_router.dart';
 
 part 'splash_state.dart';
 
 class SplashCubit extends Cubit<SplashState> {
-  SplashCubit({required TickerProvider tickerProvider})
-    : _tickerProvider = tickerProvider,
-      super(SplashInitial());
+  SplashCubit({
+    required TickerProvider tickerProvider,
+    required SharedPreferences sharedPreferences,
+  })  : _tickerProvider = tickerProvider,
+        _sharedPreferences = sharedPreferences,
+        super(SplashInitial());
 
   final TickerProvider _tickerProvider;
+  final SharedPreferences _sharedPreferences;
   late final AnimationController _controller;
   late final Animation<double> _holeScale;
   late final Animation<double> _holeOpacity;
@@ -118,7 +125,7 @@ class SplashCubit extends Cubit<SplashState> {
 
     _controller.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
-        emit(SplashNavigate());
+        _checkAuthAndNavigate();
       }
     });
 
@@ -134,6 +141,27 @@ class SplashCubit extends Cubit<SplashState> {
     );
 
     _controller.forward();
+  }
+
+  void _checkAuthAndNavigate() {
+    // Check if onboarding has been shown before
+    final onboardingShown = _sharedPreferences.getBool(AppConstants.onboardingShown) ?? false;
+    
+    // If onboarding hasn't been shown, show it first
+    if (!onboardingShown) {
+      emit(SplashNavigate(route: AppRouter.onboarding));
+      return;
+    }
+    
+    // If onboarding has been shown, check authentication
+    final token = _sharedPreferences.getString(AppConstants.accessToken);
+    
+    // If token exists, navigate to home, otherwise to login
+    final route = (token != null && token.isNotEmpty)
+        ? AppRouter.home
+        : AppRouter.login;
+    
+    emit(SplashNavigate(route: route));
   }
 
   @override

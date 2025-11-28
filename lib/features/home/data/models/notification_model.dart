@@ -50,3 +50,4 @@ class NotificationModel extends Equatable {
   List<Object?> get props => [id, type, title, body, readAt, createdAt, data];
 }
 
+

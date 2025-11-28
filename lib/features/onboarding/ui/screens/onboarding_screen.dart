@@ -3,7 +3,10 @@ import 'package:coinly/core/theme/app_assets.dart';
 import 'package:coinly/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../core/router/app_router.dart';
+import '../../../../core/utils/constants.dart';
+import '../../../../core/di/injection_container.dart' as di;
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -58,8 +61,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     }
   }
 
-  void _completeOnboarding() {
-    AppRouter.pushReplacementNamed(context, AppRouter.login);
+  Future<void> _completeOnboarding() async {
+    // Mark onboarding as shown
+    final prefs = di.sl<SharedPreferences>();
+    await prefs.setBool(AppConstants.onboardingShown, true);
+    
+    // Navigate to login
+    if (context.mounted) {
+      AppRouter.pushReplacementNamed(context, AppRouter.login);
+    }
   }
 
   @override

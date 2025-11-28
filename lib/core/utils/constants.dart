@@ -24,6 +24,7 @@ class AppConstants {
   // SharedPreferences Keys
   static const String cachedUser = 'CACHED_USER';
   static const String accessToken = 'ACCESS_TOKEN';
+  static const String onboardingShown = 'ONBOARDING_SHOWN';
 
   // App
   static const String appName = 'Grow';

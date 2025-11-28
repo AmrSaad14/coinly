@@ -16,12 +16,13 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   @override
   void dispose() {
-    _emailController.dispose();
+    _phoneController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
@@ -49,6 +50,10 @@ class _LoginScreenState extends State<LoginScreen> {
             AppRouter.pushNamedAndRemoveUntil(context, AppRouter.home);
             context.read<LoginCubit>().clearAction();
             break;
+          case LoginFlowAction.createKiosk:
+            AppRouter.pushNamedAndRemoveUntil(context, AppRouter.createKiosk);
+            context.read<LoginCubit>().clearAction();
+            break;
           case LoginFlowAction.ownerAccess:
             AppRouter.pushNamed(context, AppRouter.ownerAccess);
             context.read<LoginCubit>().clearAction();
@@ -64,141 +69,111 @@ class _LoginScreenState extends State<LoginScreen> {
       child: BlocBuilder<LoginCubit, LoginState>(
         builder: (context, state) {
           final loginCubit = context.read<LoginCubit>();
-          final selectedRole = state.selectedRole;
 
           return Scaffold(
             body: SafeArea(
               child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: 20.w),
                 child: SingleChildScrollView(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SizedBox(height: 40.h),
-                      Text(
-                        'تسجيل الدخول',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      SizedBox(height: 40.h),
-                      CustomTextField(
-                        controller: _emailController,
-                        hint: 'البريد الإلكتروني أو رقم الهاتف أو اسم المستخدم',
-                        suffixIconWidget: Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 12.w),
-                          child: Image.asset(
-                            AppAssets.email,
-                            width: 20.w,
-                            height: 20.h,
-                            fit: BoxFit.contain,
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SizedBox(height: 40.h),
+                        Text(
+                          'تسجيل الدخول',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
-                        keyboardType: TextInputType.text,
-                      ),
-                      SizedBox(height: 20.h),
-                      CustomTextField(
-                        controller: _passwordController,
-                        hint: 'كلمة المرور',
-                        suffixIconWidget: Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 12.w),
-                          child: Image.asset(
-                            AppAssets.passKey,
-                            width: 20.w,
-                            height: 20.h,
-                            fit: BoxFit.contain,
-                          ),
-                        ),
-                        obscureText: true,
-                        showVisibilityToggle: true,
-                        visibilityToggleOnPrefix: true,
-                      ),
-                      SizedBox(height: 20.h),
-                      Text(
-                        'نوع المستخدم',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      SizedBox(height: 12.h),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Expanded(
-                            child: CustomButton(
-                              text: 'مالك',
-                              backgroundColor: selectedRole == 'owner'
-                                  ? AppColors.primary500
-                                  : AppColors.scaffoldBackground,
-                              textColor: selectedRole == 'owner'
-                                  ? Colors.white
-                                  : AppColors.textGray,
-                              borderColor: selectedRole == 'owner'
-                                  ? AppColors.primary500
-                                  : AppColors.textGray,
-                              onTap: () => loginCubit.selectRole('owner'),
+                        SizedBox(height: 40.h),
+                        CustomTextField(
+                          controller: _phoneController,
+                          hint: 'رقم الهاتف',
+                          suffixIconWidget: Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 12.w),
+                            child: Icon(
+                              Icons.phone_outlined,
+                              size: 20.sp,
+                              color: Colors.grey[600],
                             ),
                           ),
-                          SizedBox(width: 12.w),
-                          Expanded(
-                            child: CustomButton(
-                              text: 'عامل',
-                              backgroundColor: selectedRole == 'worker'
-                                  ? AppColors.primary500
-                                  : AppColors.scaffoldBackground,
-                              textColor: selectedRole == 'worker'
-                                  ? Colors.white
-                                  : AppColors.textGray,
-                              borderColor: selectedRole == 'worker'
-                                  ? AppColors.primary500
-                                  : AppColors.textGray,
-                              onTap: () => loginCubit.selectRole('worker'),
+                          keyboardType: TextInputType.phone,
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return 'الرجاء إدخال رقم الهاتف';
+                            }
+                            if (value.trim().length < 9) {
+                              return 'رقم الهاتف غير صحيح';
+                            }
+                            return null;
+                          },
+                        ),
+                        SizedBox(height: 20.h),
+                        CustomTextField(
+                          controller: _passwordController,
+                          hint: 'كلمة المرور',
+                          suffixIconWidget: Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 12.w),
+                            child: Image.asset(
+                              AppAssets.passKey,
+                              width: 20.w,
+                              height: 20.h,
+                              fit: BoxFit.contain,
                             ),
                           ),
-                        ],
-                      ),
-                      SizedBox(height: 20.h),
-                      CustomButton(
-                        text: 'تسجيل الدخول',
-                        onTap: () {
-                          FocusScope.of(context).unfocus();
-                          loginCubit.login(
-                            username: _emailController.text,
-                            password: _passwordController.text,
-                          );
-                        },
-                        isLoading: state.isLoading,
-                      ),
-                      SizedBox(height: 20.h),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          TextButton(
-                            onPressed: () {
-                              AppRouter.pushNamed(context, AppRouter.phoneAuth);
-                            },
-                            child: Text(
-                              'تسجيل حساب جديد',
+                          obscureText: true,
+                          showVisibilityToggle: true,
+                          visibilityToggleOnPrefix: true,
+                        ),
+                        SizedBox(height: 40.h),
+                        CustomButton(
+                          text: 'تسجيل الدخول',
+                          onTap: () {
+                            FocusScope.of(context).unfocus();
+                            if (_formKey.currentState!.validate()) {
+                              loginCubit.login(
+                                username: _phoneController.text.trim(),
+                                password: _passwordController.text,
+                              );
+                            }
+                          },
+                          isLoading: state.isLoading,
+                        ),
+                        SizedBox(height: 20.h),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            TextButton(
+                              onPressed: () {
+                                AppRouter.pushNamed(
+                                  context,
+                                  AppRouter.phoneAuth,
+                                );
+                              },
+                              child: Text(
+                                'تسجيل حساب جديد',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.primary500,
+                                ),
+                              ),
+                            ),
+                            Text(
+                              'لا تمتلك حساب؟',
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
-                                color: AppColors.primary500,
                               ),
                             ),
-                          ),
-                          Text(
-                            'لا تمتلك حساب؟',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 40.h),
-                    ],
+                          ],
+                        ),
+                        SizedBox(height: 40.h),
+                      ],
+                    ),
                   ),
                 ),
               ),

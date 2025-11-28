@@ -2,7 +2,7 @@ import 'package:coinly/core/theme/app_assets.dart';
 import 'package:coinly/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:coinly/core/router/app_router.dart';
+import 'package:coinly/core/di/injection_container.dart' as di;
 import 'package:coinly/features/splash/logic/cubit/splash_cubit.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -17,12 +17,17 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => SplashCubit(tickerProvider: this)..init(),
+      create: (_) => SplashCubit(
+        tickerProvider: this,
+        sharedPreferences: di.sl(),
+      )..init(),
       child: BlocListener<SplashCubit, SplashState>(
         listenWhen: (_, current) => current is SplashNavigate,
         listener: (context, state) {
           if (!mounted) return;
-          Navigator.of(context).pushReplacementNamed(AppRouter.onboarding);
+          if (state is SplashNavigate) {
+            Navigator.of(context).pushReplacementNamed(state.route);
+          }
         },
         child: Scaffold(
           body: BlocBuilder<SplashCubit, SplashState>(

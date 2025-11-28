@@ -5,6 +5,7 @@ enum LoginFlowAction {
   home,
   ownerAccess,
   blockedUser,
+  createKiosk,
 }
 
 final class LoginState extends Equatable {

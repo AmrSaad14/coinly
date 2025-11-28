@@ -27,3 +27,4 @@ class NotificationDataModel extends Equatable {
   List<Object?> get props => [clientPhone, totalPoints];
 }
 
+

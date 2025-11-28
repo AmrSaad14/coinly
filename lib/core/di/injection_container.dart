@@ -66,6 +66,7 @@ Future<void> init() async {
       apiService: sl<ApiService>(),
       dio: sl<Dio>(),
       sharedPreferences: sl<SharedPreferences>(),
+      kioskRepository: sl<KioskRepository>(),
     ),
   );
 

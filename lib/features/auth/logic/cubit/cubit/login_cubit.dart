@@ -8,6 +8,7 @@ import 'package:coinly/core/utils/constants.dart';
 import 'package:coinly/core/utils/message_extractor.dart';
 import 'package:coinly/features/auth/data/models/login_request_model.dart';
 import 'package:coinly/features/auth/data/models/login_response_model.dart';
+import 'package:coinly/features/kiosk/data/repository/kiosk_repository.dart';
 
 part 'login_state.dart';
 
@@ -16,18 +17,17 @@ class LoginCubit extends Cubit<LoginState> {
     required ApiService apiService,
     required Dio dio,
     required SharedPreferences sharedPreferences,
+    required KioskRepository kioskRepository,
   }) : _apiService = apiService,
        _dio = dio,
        _sharedPreferences = sharedPreferences,
+       _kioskRepository = kioskRepository,
        super(const LoginState());
 
   final ApiService _apiService;
   final Dio _dio;
   final SharedPreferences _sharedPreferences;
-
-  void selectRole(String role) {
-    emit(state.copyWith(selectedRole: role, errorMessage: null));
-  }
+  final KioskRepository _kioskRepository;
 
   void clearError() {
     if (state.errorMessage != null) {
@@ -45,18 +45,12 @@ class LoginCubit extends Cubit<LoginState> {
     required String username,
     required String password,
   }) async {
-    final validationError = _validateInputs(
-      username,
-      password,
-      state.selectedRole,
-    );
+    final validationError = _validateInputs(username, password);
 
     if (validationError != null) {
       emit(state.copyWith(errorMessage: validationError));
       return;
     }
-
-    final role = state.selectedRole!;
 
     emit(
       state.copyWith(
@@ -66,28 +60,32 @@ class LoginCubit extends Cubit<LoginState> {
       ),
     );
 
+    // Try owner credentials first
+    String? lastError;
+    DioException? lastException;
+
     try {
-      final roleConfig = _resolveRole(role);
-      final request = LoginRequestModel(
+      // Try owner login first
+      final ownerConfig = _resolveRole('owner');
+      final ownerRequest = LoginRequestModel(
         grantType: 'password',
-        clientId: roleConfig.clientId,
-        clientSecret: roleConfig.clientSecret,
+        clientId: ownerConfig.clientId,
+        clientSecret: ownerConfig.clientSecret,
         username: username.trim(),
         password: password,
-        scope: roleConfig.scope,
+        scope: ownerConfig.scope,
       );
 
-      final rawResponse = await _fetchRawResponse(request);
-      final parsedResponse = await _apiService.login(request);
-      final token = _extractToken(parsedResponse, rawResponse);
+      final ownerRawResponse = await _fetchRawResponse(ownerRequest);
+      final ownerParsedResponse = await _apiService.login(ownerRequest);
+      final token = _extractToken(ownerParsedResponse, ownerRawResponse);
 
-      if (token == null || token.isEmpty) {
-        throw Exception('Access token not received from server');
+      if (token != null && token.isNotEmpty) {
+        await _sharedPreferences.setString(AppConstants.accessToken, token);
+        // Check if owner has markets (first login check)
+        await _checkOwnerMarketsAndNavigate(token);
+        return;
       }
-
-      await _sharedPreferences.setString(AppConstants.accessToken, token);
-
-      emit(state.copyWith(isLoading: false, action: LoginFlowAction.home));
     } on DioException catch (e) {
       final navigation = _mapStatusToAction(e.response?.statusCode);
       if (navigation != null) {
@@ -95,20 +93,97 @@ class LoginCubit extends Cubit<LoginState> {
         return;
       }
 
+      // If it's a 401 or invalid_grant error, try worker credentials
+      final statusCode = e.response?.statusCode;
+      final data = e.response?.data;
+      final isInvalidGrant = statusCode == 401 ||
+          (statusCode == 400 &&
+              data is Map<String, dynamic> &&
+              (data['error'] == 'invalid_grant' ||
+                  data['error'] == 'invalid_client'));
+
+      if (isInvalidGrant) {
+        // Store the error but continue to try worker credentials
+        lastException = e;
+        lastError = _mapDioErrorToMessage(e);
+      } else {
+        // For other errors, show immediately
+        emit(
+          state.copyWith(
+            isLoading: false,
+            errorMessage: _mapDioErrorToMessage(e),
+          ),
+        );
+        return;
+      }
+    } catch (e) {
+      // For non-Dio exceptions, try worker credentials anyway
+      lastError = e.toString();
+    }
+
+    // If owner login failed, try worker credentials
+    try {
+      final workerConfig = _resolveRole('worker');
+      final workerRequest = LoginRequestModel(
+        grantType: 'password',
+        clientId: workerConfig.clientId,
+        clientSecret: workerConfig.clientSecret,
+        username: username.trim(),
+        password: password,
+        scope: workerConfig.scope,
+      );
+
+      final workerRawResponse = await _fetchRawResponse(workerRequest);
+      final workerParsedResponse = await _apiService.login(workerRequest);
+      final token = _extractToken(workerParsedResponse, workerRawResponse);
+
+      if (token != null && token.isNotEmpty) {
+        await _sharedPreferences.setString(AppConstants.accessToken, token);
+        emit(state.copyWith(isLoading: false, action: LoginFlowAction.home));
+        return;
+      }
+    } on DioException catch (e) {
+      final navigation = _mapStatusToAction(e.response?.statusCode);
+      if (navigation != null) {
+        emit(state.copyWith(isLoading: false, action: navigation));
+        return;
+      }
+
+      // Both attempts failed, show the error from worker attempt (or last error)
       emit(
         state.copyWith(
           isLoading: false,
           errorMessage: _mapDioErrorToMessage(e),
         ),
       );
+      return;
     } catch (_) {
-      emit(
-        state.copyWith(
-          isLoading: false,
-          errorMessage: 'حدث خطأ أثناء تسجيل الدخول',
-        ),
-      );
+      // Both attempts failed, show the last error
+      if (lastException != null) {
+        emit(
+          state.copyWith(
+            isLoading: false,
+            errorMessage: _mapDioErrorToMessage(lastException),
+          ),
+        );
+      } else {
+        emit(
+          state.copyWith(
+            isLoading: false,
+            errorMessage: lastError ?? 'حدث خطأ أثناء تسجيل الدخول',
+          ),
+        );
+      }
+      return;
     }
+
+    // If we reach here, both attempts returned but no token was found
+    emit(
+      state.copyWith(
+        isLoading: false,
+        errorMessage: lastError ?? 'البريد الإلكتروني أو كلمة المرور غير صحيحة',
+      ),
+    );
   }
 
   ({String clientId, String clientSecret, String scope}) _resolveRole(
@@ -178,17 +253,39 @@ class LoginCubit extends Cubit<LoginState> {
     return null;
   }
 
-  String? _validateInputs(String username, String password, String? role) {
+  Future<void> _checkOwnerMarketsAndNavigate(String token) async {
+    try {
+      final authorization = 'Bearer $token';
+      final marketsResult = await _kioskRepository.getOwnerMarkets(authorization);
+      
+      marketsResult.fold(
+        (failure) {
+          // If API call fails, navigate to home as fallback
+          emit(state.copyWith(isLoading: false, action: LoginFlowAction.home));
+        },
+        (markets) {
+          // If owner has no markets, it's their first login - show create kiosk screen
+          if (markets.isEmpty) {
+            emit(state.copyWith(isLoading: false, action: LoginFlowAction.createKiosk));
+          } else {
+            // Owner has markets, navigate to home
+            emit(state.copyWith(isLoading: false, action: LoginFlowAction.home));
+          }
+        },
+      );
+    } catch (e) {
+      // If check fails, navigate to home as fallback
+      emit(state.copyWith(isLoading: false, action: LoginFlowAction.home));
+    }
+  }
+
+  String? _validateInputs(String username, String password) {
     if (username.trim().isEmpty) {
-      return 'يرجى إدخال البريد الإلكتروني أو اسم المستخدم';
+      return 'يرجى إدخال رقم الهاتف';
     }
 
     if (password.isEmpty) {
       return 'يرجى إدخال كلمة المرور';
-    }
-
-    if (role == null) {
-      return 'يرجى اختيار نوع المستخدم';
     }
 
     return null;

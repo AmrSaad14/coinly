@@ -86,7 +86,7 @@ class CustomButton extends StatelessWidget {
         ),
         const SizedBox(width: 8),
 
-        SvgPicture.asset(icon!, height: 30, width: 30, fit: BoxFit.contain),
+        SvgPicture.asset(icon!, height: 20, width: 20, fit: BoxFit.contain),
       ],
     );
   }

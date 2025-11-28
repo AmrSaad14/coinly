@@ -138,9 +138,7 @@ class HomePoints extends StatelessWidget {
                                           AppRouter.pushReplacementNamed(
                                             context,
                                             AppRouter.withdrawConfirmation,
-                                            arguments: {
-                                              'marketId': market.id,
-                                            },
+                                            arguments: {'marketId': market.id},
                                           );
                                         },
                                       ),
@@ -155,7 +153,7 @@ class HomePoints extends StatelessWidget {
                   );
                 },
                 backgroundColor: AppColors.scaffoldBackground,
-                borderColor: AppColors.primary500,
+                borderColor: AppColors.neutral500,
                 textColor: AppColors.textDark,
               ),
               SizedBox(width: 16.w),
@@ -249,7 +247,7 @@ class HomePoints extends StatelessWidget {
                   );
                 },
                 backgroundColor: AppColors.scaffoldBackground,
-                borderColor: AppColors.textDark,
+                borderColor: AppColors.neutral500,
                 textColor: AppColors.textDark,
               ),
             ],
